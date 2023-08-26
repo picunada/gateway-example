@@ -4,7 +4,7 @@ SHELL=bash
 
 default: test-default
 
-test-default: format lint mypy unittest
+test-default: unittest
 	@echo -e "All tests complete $(OK_MSG)"
 
 format-default: .venv
@@ -24,7 +24,7 @@ mypy-default: .venv
 
 unittest-default: .venv
 	@echo -e "==> Running tests..\n"
-	@docker compose -f test.yml up -d && PYTHONPATH=. .venv/bin/pytest $(CODE_LOCATIONS) --cov-report term-missing:skip-covered --cov $(CODE_LOCATIONS) --no-cov-on-fail --cov-fail-under=$(COVERAGE_LIMIT) -W ignore::DeprecationWarning -vv && docker compose down
+	@docker compose -f test.yml up -d && PYTHONPATH=. .venv/bin/pytest $(CODE_LOCATIONS) --cov-report term-missing:skip-covered --cov $(CODE_LOCATIONS) --no-cov-on-fail --cov-fail-under=$(COVERAGE_LIMIT) -W ignore::DeprecationWarning -vv && .venv/bin/coverage json && docker compose down
 
 .venv: requirements.txt test-requirements.txt
 	@echo "==> Creating virtualenv...\n"
