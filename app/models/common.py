@@ -3,7 +3,7 @@ from typing import Annotated, Union
 from bson import ObjectId
 from pydantic import PlainSerializer, AfterValidator, WithJsonSchema, BaseModel, Field
 
-DataT = TypeVar('DataT')
+DataT = TypeVar("DataT")
 
 
 class PaginatedResponse(BaseModel, Generic[DataT]):
