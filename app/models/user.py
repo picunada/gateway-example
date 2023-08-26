@@ -53,7 +53,7 @@ class UserIn(User):
 
 
 class UserInDb(User):
-    model_config = {"arbitrary_types_allowed": True}
+    model_config = {"arbitrary_types_allowed": True, "populate_by_name": True}
 
     id: PyObjectId | None = Field(alias="_id", default=None)
     role: Roles = Roles.default

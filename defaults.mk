@@ -2,19 +2,19 @@
 OK_MSG = \x1b[32m ✔\x1b[0m
 SHELL=bash
 
-default: test-default
+default: format lint mypy unittest
 
 test-default: unittest
 	@echo -e "All tests complete $(OK_MSG)"
 
 format-default: .venv
 	@echo -n -e "==> Checking that code is auto-formatted with black...\n"
-	@.venv/bin/black --check --quiet --exclude '(.venv|vendor)' .
+	@.venv/bin/black --check --quiet --exclude '(.venv|vendor|test)' .
 	@echo -e "$(OK_MSG)"
 
 lint-default: .venv
 	@echo -n -e "==> Running flake8...\n"
-	@.venv/bin/flake8 --show-source --statistics $(CODE_LOCATIONS) --exclude=.venv
+	@.venv/bin/flake8 --show-source --statistics $(CODE_LOCATIONS) --exclude=.venv,test
 	@echo -e "$(OK_MSG)"
 
 mypy-default: .venv
@@ -35,7 +35,7 @@ unittest-default: .venv
 	touch .venv
 
 blacken-default: .venv
-	.venv/bin/black --exclude '(.venv|vendor)' .
+	.venv/bin/black --exclude='(.venv|vendor|test)' .
 
 clean-default:
 	rm -rf .venv
