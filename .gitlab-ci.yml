@@ -1,18 +1,68 @@
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Container-Scanning.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+
 default:
   tags:
     - shared
     - multitender
 
 stages:
+  - lint
   - test
+  - packaging
+  - deploy:staging
+  - deploy:prod
 
+.non-release: &non-release
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
 
+cache:
+  paths:
+    - .venv/
 
-test-job:
+"Lint application":
+  <<: *non-release
   image: python:3.11
-  stage: test
+  stage: lint
   script:
-    - make
+    - make blacken
+    - make lint
+    - make format
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+
+"Type checking":
+  <<: *non-release
+  image: python:3.11
+  stage: lint
+  script:
+    - make mypy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+
+"Test application":
+  <<: *non-release
+  image: python:3.11
+  stage: test
+  script:
+    - make test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+
+"Test coverage":
+  <<: *non-release
+  image: python:3.11
+  stage: test
+  script:
+    - make test
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -t $CODECOV_TOKEN
