@@ -10,6 +10,10 @@ pymongo = "*"
 pytest = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
+pytest-cov = "*"
+mypy = "*"
+types-python-jose = "*"
+types-passlib = "*"
 
 [dev-packages]
 

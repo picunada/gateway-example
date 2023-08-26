@@ -1,0 +1,9 @@
+-r requirements.txt
+
+pytest
+flake8
+mypy
+watchdog
+argh
+PyYAML
+black

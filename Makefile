@@ -1,4 +1,4 @@
-.PHONY: test
+include defaults.mk
 
-test:
-	docker compose -f test.yml up -d && pytest && docker compose down
+CODE_LOCATIONS = app test
+COVERAGE_LIMIT = 50
