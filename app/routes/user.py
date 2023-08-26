@@ -8,7 +8,7 @@ from starlette.responses import JSONResponse
 from app.dependencies.auth import Auth, UserWithRole
 from app.dependencies.db import MongoDatabase, get_database
 from app.models.common import PaginatedResponse
-from app.models.user import UserIn, Roles, UserInDb
+from app.models.user import UserIn, Roles, UserInDb, User
 
 router = APIRouter()
 auth = Auth()
@@ -62,9 +62,7 @@ async def get_one(
             )
         return user
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail="Report not found"
-    )
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -99,13 +97,13 @@ async def insert(
 @router.put("/{id}", status_code=status.HTTP_200_OK)
 async def put(
     id: str,
-    user: Annotated[UserIn, Body(embed=False)],
+    user: Annotated[User, Body(embed=False)],
     db: Optional[MongoDatabase] = Depends(get_database),
 ) -> UserInDb:
     assert db is not None
     mongo = db.client
     users = mongo.get_database("mt-services")["users"]
-    updated = users.update_one({"_id": ObjectId(id)}, user.model_dump())
+    updated = users.update_one({"_id": ObjectId(id)}, {"$set": user.model_dump()})
     user_data = users.find_one(updated.upserted_id)
     user_in_db = UserInDb.model_validate(user_data)
     return user_in_db

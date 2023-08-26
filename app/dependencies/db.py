@@ -1,7 +1,6 @@
 """Database module"""
 import os
 
-import gridfs
 import pymongo
 from pymongo import MongoClient
 
@@ -27,9 +26,6 @@ class MongoDatabase:
             tlsAllowInvalidHostnames=True,
             tlsCAFile=f"{os.getcwd()}/app/lib/sber.crt",
         )
-
-        self.fs_db = self.client.reportFS
-        self.report_fs = gridfs.GridFS(self.fs_db)
 
 
 async def get_database() -> MongoDatabase:
