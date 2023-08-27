@@ -1,4 +1,6 @@
 """Database module"""
+import os
+
 import gridfs
 import pymongo
 from pymongo import MongoClient
@@ -17,7 +19,7 @@ class MongoDatabase:
     def __init__(self) -> None:
         """Init database client"""
         self.client: MongoClient = pymongo.MongoClient(
-            "mongodb://localhost:27017/test",
+            os.getenv("TEST_DATABASE_URL"),
         )
 
         self.fs_db = self.client.reportFS

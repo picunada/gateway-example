@@ -5,8 +5,7 @@ include:
 
 default:
   tags:
-    - shared
-    - multitender
+    - docker
 
 stages:
   - lint
@@ -51,8 +50,12 @@ cache:
   <<: *non-release
   image: python:3.11
   stage: test
+  variables:
+    TEST_DATABASE_URL: mongodb://localhost:27017/test
   script:
     - make test
+  services:
+    - mongo:latest
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
@@ -61,8 +64,15 @@ cache:
   <<: *non-release
   image: python:3.11
   stage: test
+  variables:
+    TEST_DATABASE_URL: mongodb://localhost:27017/test
   script:
     - make test
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -t $CODECOV_TOKEN
+  services:
+    - mongo:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
