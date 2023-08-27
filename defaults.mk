@@ -24,7 +24,7 @@ mypy-default: .venv
 
 unittest-default: .venv
 	@echo -e "==> Running tests..\n"
-	@docker compose -f test.yml up -d && PYTHONPATH=. .venv/bin/pytest $(CODE_LOCATIONS) --cov-report term-missing:skip-covered --cov $(CODE_LOCATIONS) --cov-report=xml --no-cov-on-fail --cov-fail-under=$(COVERAGE_LIMIT) -W ignore::DeprecationWarning -vv && docker compose down
+	@PYTHONPATH=. .venv/bin/pytest $(CODE_LOCATIONS) --cov-report term-missing:skip-covered --cov $(CODE_LOCATIONS) --cov-report=xml --no-cov-on-fail --cov-fail-under=$(COVERAGE_LIMIT) -W ignore::DeprecationWarning -vv
 
 .venv: requirements.txt test-requirements.txt
 	@echo "==> Creating virtualenv...\n"
