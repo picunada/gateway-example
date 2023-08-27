@@ -73,6 +73,7 @@ class TestAuth:
         )
 
         assert accessed.status_code == 200
+        print(accessed.json())
 
     def test_resource_not_accessed_without_scope(self, client, user):
         users = db.client.get_database("mt-services")["users"]
