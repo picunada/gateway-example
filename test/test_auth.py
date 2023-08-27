@@ -50,6 +50,8 @@ class TestAuth:
         assert blacklisted_after_logout.json()["detail"] == "Blacklisted"
 
     def test_resource_accessed_with_token(self, client, user):
+        blacklist = db.client.get_database("mt-services")["blacklist"]
+        blacklist.delete_many({"token_type": "bearer"})
         users = db.client.get_database("mt-services")["users"]
         users.update_one({"email": "test@example.com"}, {"$set": {"role": "admin"}})
 
