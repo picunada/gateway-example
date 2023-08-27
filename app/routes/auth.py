@@ -1,8 +1,7 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, Body
 from fastapi.security import OAuth2PasswordRequestForm
-from starlette import status
 
 from app.dependencies.auth import Auth
 from app.dependencies.db import get_database, MongoDatabase
@@ -42,8 +41,5 @@ def refresh(
 
 @router.post("/logout")
 def logout(token: Token, db: Optional[MongoDatabase] = Depends(get_database)):
-    if Blacklist.blacklist_token(db, token):
-        return {"message": "Logout."}
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Server error."
-    )
+    Blacklist.blacklist_token(db, token)
+    return {"detail": "Logout"}

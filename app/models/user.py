@@ -60,3 +60,11 @@ class UserInDb(User):
     is_active: bool = Field(default=True)
     date_joined: datetime = Field(default=datetime.now())
     hashed_password: str = Field(description="Hashed password")
+
+
+class UserOut(User):
+    model_config = {"arbitrary_types_allowed": True, "populate_by_name": True}
+    id: PyObjectId | None = Field(alias="_id", default=None)
+    role: Roles = Roles.default
+    is_active: bool = Field(default=True)
+    date_joined: datetime = Field(default=datetime.now())

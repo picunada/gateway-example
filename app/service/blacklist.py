@@ -17,11 +17,9 @@ class Blacklist:
         assert db is not None
         # Check if token in blacklist database
         blacklist = db.client.get_database("mt-services")["blacklist"]
-        token_data = blacklist.find_one({"access_token": token})
-        if token_data:
-            return True
-        token_data = blacklist.find_one({"refresh_token": token})
-        if token_data:
+        if blacklist.find_one({"access_token": token}) or blacklist.find_one(
+            {"refresh_token": token}
+        ):
             return True
 
         return False

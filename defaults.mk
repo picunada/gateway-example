@@ -2,7 +2,7 @@
 OK_MSG = \x1b[32m ✔\x1b[0m
 SHELL=bash
 
-default: format lint mypy unittest
+default: blacken format lint mypy unittest
 
 test-default: unittest
 	@echo -e "All tests complete $(OK_MSG)"
