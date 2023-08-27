@@ -27,10 +27,6 @@ class Auth:
         },
     )
 
-    def __init__(self, oauth2scheme: Optional[OAuth2PasswordBearer] = None):
-        if oauth2scheme:
-            self.oauth2_scheme = oauth2scheme
-
     def verify_password(self, plain_password: str, hashed_password: str):
         return self.pwd_context.verify(plain_password, hashed_password)
 
@@ -74,8 +70,6 @@ class Auth:
         except (JWTError, ValidationError):
             raise credentials_exception
         user = self.get_user(db, email=token_data.email)
-        if user is None:
-            raise credentials_exception
         for scope in security_scopes.scopes:
             if scope not in token_data.scopes:
                 raise HTTPException(
@@ -133,17 +127,12 @@ class Auth:
                 data={"sub": user.email, "scopes": payload["scopes"]},
             )
 
-            if Blacklist.blacklist_token(db, token):
-                return Token(
-                    access_token=access_token,
-                    refresh_token=refresh_token,
-                    token_type="bearer",
-                )
-
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Server error"
+            Blacklist.blacklist_token(db, token)
+            return Token(
+                access_token=access_token,
+                refresh_token=refresh_token,
+                token_type="bearer",
             )
-
         except KeyError as err:
             print(err)
             raise HTTPException(status_code=401, detail="Invalid token.")
@@ -155,9 +144,7 @@ class Auth:
 class UserWithRole:
     auth = Auth()
 
-    def __init__(self, roles: Optional[Sequence[str]], auth: Optional[Auth] = None):
-        if auth:
-            self.auth = auth
+    def __init__(self, roles: Optional[Sequence[str]]):
         self.roles = roles or []
 
     def __call__(

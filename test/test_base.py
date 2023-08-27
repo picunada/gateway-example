@@ -30,4 +30,5 @@ def client():
     blacklist = db.client.get_database("mt-services")["blacklist"]
 
     users.delete_many({"email": "test@example.com"})
+    users.delete_many({"email": "test2@example.com"})
     blacklist.delete_many({"token_type": "bearer"})

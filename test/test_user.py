@@ -1,4 +1,4 @@
-from app.models.user import UserInDb, Roles
+from app.models.user import UserInDb, Roles, UserOut
 from .test_base import db, client, user
 
 
@@ -68,7 +68,7 @@ class TestUser:
     def test_user_get_one(self, client, user):
         users = db.client.get_database("mt-services")["users"]
         user_data = users.find_one({"email": "test@example.com"})
-        user_data = UserInDb.model_validate(user_data)
+        user_data = UserOut.model_validate(user_data)
 
         auth = client.post(
             "/api/v1/auth/access",
@@ -97,22 +97,18 @@ class TestUser:
         assert get_one.status_code == 200
         assert response == data
 
-
-    def test_user_not_found(self, client, user):
-        auth = client.post(
-            "/api/v1/auth/access",
-            headers={"content-type": "application/x-www-form-urlencoded"},
-            data=dict(
-                username=user["email"],
-                password=user["password"],
-                scope=["read", "write"],
-            ),
+        get_one_invalid_id = client.get(
+            f"/api/v1/user/1234",
+            headers={
+                "content-type": "application/x-www-form-urlencoded",
+                "Authorization": f"Bearer {auth.json()['access_token']}",
+            },
         )
 
-        assert auth.status_code == 200
-        assert auth.json()["access_token"] is not None
+        assert get_one_invalid_id.status_code == 404
+        assert get_one_invalid_id.json()['detail'] == "Invalid ID should be 12-byt hex string"
 
-        get_one = client.get(
+        not_found = client.get(
             "/api/v1/user/737f2466c578e69ac37c0fd5",
             headers={
                 "content-type": "application/x-www-form-urlencoded",
@@ -120,8 +116,8 @@ class TestUser:
             },
         )
 
-        assert get_one.status_code == 404
-        assert get_one.json() == {"detail": "User not found"}
+        assert not_found.status_code == 404
+        assert not_found.json() == {"detail": "User not found"}
 
     def test_user_update(self, client, user):
         users = db.client.get_database("mt-services")["users"]
@@ -155,13 +151,45 @@ class TestUser:
             ),
         )
 
-        print(update.json())
-
         response = update.json()
 
         assert update.status_code == 200
         assert response["first_name"] == "test"
         assert response["last_name"] == "test"
+
+        not_found = client.put(
+            "/api/v1/user/44727769ed122ffe12a8335d",
+            headers={
+                "content-type": "application/json",
+                "Authorization": f"Bearer {auth.json()['access_token']}",
+            },
+            json=dict(
+                email="test@example.com",
+                username="test",
+                first_name="test",
+                last_name="test",
+            ),
+        )
+
+        assert not_found.status_code == 404
+        assert not_found.json()['detail'] == "User not found"
+
+        invalid = client.put(
+            "/api/v1/user/1234",
+            headers={
+                "content-type": "application/json",
+                "Authorization": f"Bearer {auth.json()['access_token']}",
+            },
+            json=dict(
+                email="test@example.com",
+                username="test",
+                first_name="test",
+                last_name="test",
+            ),
+        )
+
+        assert invalid.status_code == 404
+        assert invalid.json()['detail'] == "Invalid ID should be 12-byte hex string"
 
     def test_user_delete(self, client, user):
         users = db.client.get_database("mt-services")["users"]
@@ -197,4 +225,24 @@ class TestUser:
         response = delete.json()
 
         assert delete.status_code == 204
-        assert response["status"] == "OK"
+        assert response["detail"] == "OK"
+
+        not_found = client.delete(
+            "/api/v1/user/e346d91bda5cff5f01ded053",
+            headers={"Authorization": f"Bearer {auth.json()['access_token']}"},
+        )
+
+        response = not_found.json()
+
+        assert not_found.status_code == 404
+        assert response["detail"] == "User not found"
+
+        invalid = client.delete(
+            "/api/v1/user/1234",
+            headers={"Authorization": f"Bearer {auth.json()['access_token']}"},
+        )
+
+        response = invalid.json()
+
+        assert invalid.status_code == 404
+        assert response["detail"] == "Invalid ID should be 12-byte hex string"
