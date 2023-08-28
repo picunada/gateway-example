@@ -20,6 +20,27 @@ def user():
 
 
 @pytest.fixture(scope="session")
+def report():
+    return dict(
+        active="true",
+        username=True,
+        db="test",
+        collection="test",
+        query='{"$and": [{"loadDate": {"$gte": startDate}}, {"loadDate": {"$lt": endDate}}]}',
+        fields=[
+            dict(
+                name="regNum",
+                path="regNum",
+                type="str",
+                description="Регистрационный номер контракта",
+            )
+        ],
+        title="Предметы контрактов",
+        subCollection=""
+    )
+
+
+@pytest.fixture(scope="session")
 def client():
     app.dependency_overrides[get_database] = get_test_database
 
@@ -28,7 +49,11 @@ def client():
 
     users = db.client.get_database("mt-services")["users"]
     blacklist = db.client.get_database("mt-services")["blacklist"]
+    reports44 = db.client.get_database("test")["cReports44new"]
+    reports223 = db.client.get_database("test")["cReports223new"]
 
-    users.delete_many({"email": "test@example.com"})
-    users.delete_many({"email": "test2@example.com"})
-    blacklist.delete_many({"token_type": "bearer"})
+    users.delete_many({})
+    blacklist.delete_many({})
+    reports44.delete_many({})
+    reports223.delete_many({})
+
