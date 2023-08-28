@@ -1,0 +1,3 @@
+[run]
+# Omit remote services from coverage
+omit = report*
