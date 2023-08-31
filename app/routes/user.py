@@ -1,3 +1,4 @@
+import os
 from typing import Optional, Annotated
 
 from bson import ObjectId
@@ -23,7 +24,7 @@ async def list_users(
 ) -> PaginatedResponse[UserOut]:
     assert db is not None
     mongo = db.client
-    users = mongo.get_database("mt-services")["users"]
+    users = mongo.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
     cursor = users.find().skip(limit * (page - 1)).limit(limit)
     serialized = list(map(lambda x: UserOut.model_validate(x), cursor))
 
@@ -42,7 +43,7 @@ async def get_one(
 ) -> UserOut:
     assert db is not None
     mongo = db.client
-    reports = mongo.get_database("mt-services")["users"]
+    reports = mongo.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
     try:
         user = reports.find_one(ObjectId(id))
         if user is not None:
@@ -64,7 +65,7 @@ async def insert(
 ) -> UserOut:
     assert db is not None
     mongo = db.client
-    users = mongo.get_database("mt-services")["users"]
+    users = mongo.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
     hashed_password = auth.get_password_hash(user.password)
     user_in_db = UserInDb(
         **user.model_dump(), hashed_password=hashed_password, role=Roles.default
@@ -83,7 +84,7 @@ async def put(
 ) -> UserOut:
     assert db is not None
     mongo = db.client
-    users = mongo.get_database("mt-services")["users"]
+    users = mongo.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
     try:
         found = users.find_one({"_id": ObjectId(id)})
         if found is not None:
@@ -109,7 +110,7 @@ async def delete(
 ) -> JSONResponse:
     assert db is not None
     mongo = db.client
-    users = mongo.get_database("mt-services")["users"]
+    users = mongo.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
     try:
         delete_result = users.delete_one({"_id": ObjectId(id)})
         if delete_result.deleted_count == 1:

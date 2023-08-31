@@ -1,9 +1,10 @@
+import os
+
 import pytest
 
 from fastapi.testclient import TestClient
 
-from app.dependencies.db import get_database
-from app.dependencies.test import get_test_database, MongoDatabase
+from app.dependencies.db import MongoDatabase
 from app.main import app
 
 db = MongoDatabase()
@@ -42,15 +43,13 @@ def report():
 
 @pytest.fixture(scope="session")
 def client():
-    app.dependency_overrides[get_database] = get_test_database
-
     with TestClient(app) as client:
         yield client
 
-    users = db.client.get_database("mt-services")["users"]
-    blacklist = db.client.get_database("mt-services")["blacklist"]
-    reports44 = db.client.get_database("test")["cReports44new"]
-    reports223 = db.client.get_database("test")["cReports223new"]
+    users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+    blacklist = db.client.get_database("mt-services")[f"blacklist:{os.getenv('UVICORN_ENV')}"]
+    reports44 = db.client.get_database("test")[f"cReports44new:{os.getenv('UVICORN_ENV')}"]
+    reports223 = db.client.get_database("test")[f"cReports223new:{os.getenv('UVICORN_ENV')}"]
 
     users.delete_many({})
     blacklist.delete_many({})

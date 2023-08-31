@@ -11,7 +11,8 @@ stages:
   - lint
   - test
   - packaging
-  - deploy:staging
+  - release
+  - deploy:dev
   - deploy:prod
 
 .non-release: &non-release
@@ -19,6 +20,12 @@ stages:
     - if: $CI_COMMIT_TAG
       when: never
     - when: always
+
+.release: &release
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+    - when: never
 
 cache:
   paths:
@@ -76,3 +83,76 @@ cache:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+
+
+"Build Container":
+  <<: *release
+  stage: packaging
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
+
+
+"Package Release":
+  <<: *release
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - >
+      release-cli create --name $CI_COMMIT_BRANCH --description $CI_COMMIT_BRANCH-$CI_JOB_ID
+      --tag-name $CI_COMMIT_BRANCH --ref $CI_COMMIT_SHA
+      --assets-link "{\"name\":\"Docker Container\",\"url\":\"https://${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}\"}"
+  environment:
+    name: release
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /v\d.+/'
+      when: manual
+    - when: never
+
+
+
+.deploy-job:
+  image: node:latest
+  tags:
+    - shell
+  variables:
+    DOCKERIMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    NAME: $UVICORN_ENV.multitender.ru.d
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker pull $DOCKERIMAGE
+    - docker kill $NAME 1> /dev/null 2> /dev/null && docker rm $NAME 1> /dev/null 2> /dev/null
+    - docker run -d \
+      --restart=always \
+      --net=mynet \
+      --name $NAME \
+      $DOCKERIMAGE
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+
+"Deploy To Dev":
+  extends: .deploy-job
+  stage: deploy:dev
+  variables:
+    UVICORN_ENV: dev
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+
+"Deploy To Prod":
+  extends: .deploy-job
+  variables:
+    UVICORN_ENV: prod
+  stage: deploy:prod
+

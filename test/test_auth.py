@@ -1,3 +1,5 @@
+import os
+
 from .test_base import db, client, user
 
 
@@ -50,9 +52,9 @@ class TestAuth:
         assert blacklisted_after_logout.json()["detail"] == "Blacklisted"
 
     def test_resource_accessed_with_token(self, client, user):
-        blacklist = db.client.get_database("mt-services")["blacklist"]
+        blacklist = db.client.get_database("mt-services")[f"blacklist:{os.getenv('UVICORN_ENV')}"]
         blacklist.delete_many({"token_type": "bearer"})
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         users.update_one({"email": "test@example.com"}, {"$set": {"role": "admin"}})
 
         auth = client.post(
@@ -79,7 +81,7 @@ class TestAuth:
 
 
     def test_resource_not_accessed_without_scope(self, client, user):
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         users.update_one({"email": "test@example.com"}, {"$set": {"role": "admin"}})
 
         auth = client.post(
@@ -105,7 +107,7 @@ class TestAuth:
         assert accessed.status_code == 401
 
     def test_resource_not_accessed_without_token(self, client, user):
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         users.update_one({"email": "test@example.com"}, {"$set": {"role": "default"}})
 
         not_accessed = client.get(
@@ -142,7 +144,7 @@ class TestAuth:
         assert refresh.status_code == 200
 
     def test_tokens_blacklist(self, client, user):
-        blacklist = db.client.get_database("mt-services")["blacklist"]
+        blacklist = db.client.get_database("mt-services")[f"blacklist:{os.getenv('UVICORN_ENV')}"]
         blacklist.delete_many({"token_type": "bearer"})
 
         auth = client.post(
