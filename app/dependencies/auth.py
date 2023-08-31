@@ -1,3 +1,4 @@
+import os
 from typing import Annotated, Optional, Sequence
 from fastapi import HTTPException, Depends, Security
 from fastapi.security import (
@@ -84,7 +85,9 @@ class Auth:
         assert db is not None
         assert email is not None
 
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         user_dict = users.find_one({"email": email})
         if user_dict is None:
             raise HTTPException(
@@ -112,7 +115,9 @@ class Auth:
                     detail="Not valid refresh token",
                 )
 
-            users = db.client.get_database("mt-services")["users"]
+            users = db.client.get_database("mt-services")[
+                f"users:{os.getenv('UVICORN_ENV')}"
+            ]
             user_data = users.find_one({"email": payload["sub"]})
             if not user_data:
                 raise HTTPException(

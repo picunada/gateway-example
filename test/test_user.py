@@ -1,3 +1,5 @@
+import os
+
 from app.models.user import UserInDb, Roles, UserOut
 from .test_base import db, client, user
 
@@ -38,9 +40,9 @@ class TestUser:
         )
 
     def test_user_get(self, client, user):
-        blacklist = db.client.get_database("mt-services")["blacklist"]
+        blacklist = db.client.get_database("mt-services")[f"blacklist:{os.getenv('UVICORN_ENV')}"]
         blacklist.delete_many({})
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         users.update_one({"email": "test@example.com"}, {"$set": {"role": "admin"}})
 
         auth = client.post(
@@ -66,7 +68,7 @@ class TestUser:
         assert len(get.json()["results"]) != 0
 
     def test_user_get_one(self, client, user):
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserOut.model_validate(user_data)
 
@@ -120,7 +122,7 @@ class TestUser:
         assert not_found.json() == {"detail": "User not found"}
 
     def test_user_update(self, client, user):
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserInDb.model_validate(user_data)
 
@@ -192,7 +194,7 @@ class TestUser:
         assert invalid.json()['detail'] == "Invalid ID should be 12-byte hex string"
 
     def test_user_delete(self, client, user):
-        users = db.client.get_database("mt-services")["users"]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         users.insert_one(
             UserInDb(
                 email="test2@example.com",
