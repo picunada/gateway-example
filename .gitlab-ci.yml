@@ -81,7 +81,7 @@ cache:
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
   rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
+    - if: $CI_COMMIT_TAG
       when: manual
     - when: never
 
@@ -95,7 +95,7 @@ cache:
       --tag-name $CI_COMMIT_BRANCH --ref $CI_COMMIT_SHA
       --assets-link "{\"name\":\"Docker Container\",\"url\":\"https://${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}\"}"
   rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
+    - if: $CI_COMMIT_TAG
       when: manual
     - when: never
 
@@ -116,7 +116,7 @@ cache:
       $DOCKERIMAGE
     - docker logout registry.gitlab.com
   rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
+    - if: $CI_COMMIT_TAG
       when: manual
     - if: '$FORCE_DEPLOY == "true"'
       when: manual
