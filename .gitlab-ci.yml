@@ -1,7 +1,7 @@
-include:
-  - template: Security/SAST.gitlab-ci.yml
-  - template: Security/Container-Scanning.gitlab-ci.yml
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
+image: python:3.11-slim
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 default:
   tags:
@@ -16,60 +16,40 @@ stages:
   - deploy:prod
 
 .non-release: &non-release
+  before_script:
+    - apt update && apt install build-essential curl -y
   rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - when: always
-
-.release: &release
-  rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       when: always
     - when: never
 
 cache:
   paths:
-    - .venv/
+    - .cache/pip
+    - venv/
+
 
 "Lint application":
   <<: *non-release
-  image: python:3.11
   stage: lint
   script:
     - make blacken
     - make lint
     - make format
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'"  # Run for all changes to a merge request's source branch
 
 "Type checking":
   <<: *non-release
-  image: python:3.11
   stage: lint
   script:
     - make mypy
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'" # Run for all changes to a merge request's source branch
 
-"Test application":
-  <<: *non-release
-  image: python:3.11
-  stage: test
-  variables:
-    TEST_DATABASE_URL: mongodb://localhost:27017/test
-  script:
-    - make test
-  services:
-    - mongo:latest
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
 
 "Test coverage":
   <<: *non-release
-  image: python:3.11
   stage: test
   variables:
     TEST_DATABASE_URL: mongodb://localhost:27017/test
@@ -81,12 +61,10 @@ cache:
   services:
     - mongo:latest
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH       # Run for all changes to the default branch
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # Run for all changes to a merge request's source branch
 
 
 "Build Container":
-  <<: *release
   stage: packaging
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -103,33 +81,31 @@ cache:
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'  # Run for all changes to a merge request's source branch
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
+      when: manual
+    - when: never
 
 
 "Package Release":
-  <<: *release
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
     - >
       release-cli create --name $CI_COMMIT_BRANCH --description $CI_COMMIT_BRANCH-$CI_JOB_ID
       --tag-name $CI_COMMIT_BRANCH --ref $CI_COMMIT_SHA
-      --assets-link "{\"name\":\"Docker Container\",\"url\":\"https://${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}\"}"
+      --assets-link "{\"name\":\"Docker Container\",\"url\":\"https://${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}\"}"
   environment:
     name: release
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /v\d.+/'
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
       when: manual
     - when: never
 
-
-
 .deploy-job:
-  image: node:latest
   tags:
     - shell
   variables:
-    DOCKERIMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    DOCKERIMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
     NAME: $UVICORN_ENV.multitender.ru.d
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
@@ -140,8 +116,11 @@ cache:
       --net=mynet \
       --name $NAME \
       $DOCKERIMAGE
+    - docker logout registry.gitlab.com
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
+      when: manual
+    - if: '$FORCE_DEPLOY == "true"'
       when: manual
 
 "Deploy To Dev":
