@@ -26,7 +26,7 @@ stages:
 cache:
   paths:
     - .cache/pip
-    - venv/
+    - .venv/
 
 
 "Lint application":
