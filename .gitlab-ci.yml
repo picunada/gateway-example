@@ -108,6 +108,7 @@ cache:
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker pull $DOCKERIMAGE
+    - echo $NAME
     - docker kill $NAME 1> /dev/null 2> /dev/null && docker rm $NAME 1> /dev/null 2> /dev/null
     - docker run -d \
       --restart=always \
