@@ -105,6 +105,8 @@ cache:
   variables:
     DOCKERIMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
     NAME: $UVICORN_ENV.$CI_PROJECT_NAME.multitender.ru.d
+    MONGO_URL: $MONGO_URL
+    SECRET_KEY: $SECRET_KEY
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker pull $DOCKERIMAGE
