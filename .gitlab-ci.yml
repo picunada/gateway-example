@@ -111,9 +111,9 @@ cache:
     - echo $NAME
     - echo $DOCKERIMAGE
     - docker kill $NAME 1> /dev/null 2> /dev/null && docker rm $NAME 1> /dev/null 2> /dev/null
-    - echo MONGO_URL=${MONGO_URL} >> .env
+    - echo MONGO_URL=$MONGO_URL >> .env
     - echo UVICORN_ENV=${UVICORN_ENV} >> .env
-    - echo SECRET_KEY=${SECRET_KEY} >> .env
+    - echo SECRET_KEY=$SECRET_KEY >> .env
     - cat .env
     - docker run -d 
       --restart=always 
