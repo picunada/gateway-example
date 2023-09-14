@@ -114,6 +114,7 @@ cache:
     - echo MONGO_URL=${MONGO_URL} >> .env
     - echo UVICORN_ENV=${UVICORN_ENV} >> .env
     - echo SECRET_KEY=${SECRET_KEY} >> .env
+    - cat .env
     - docker run -d 
       --restart=always 
       --net=mynet 
@@ -133,7 +134,7 @@ cache:
   variables:
     UVICORN_ENV: dev
   environment:
-    name: dev
+    name: development
   rules:
     - if: $CI_COMMIT_TAG
       when: manual
@@ -144,7 +145,7 @@ cache:
     UVICORN_ENV: prod
   stage: deploy:prod
   environment:
-    name: prod
+    name: production
   rules:
     - if: $CI_COMMIT_TAG
       when: manual
