@@ -73,7 +73,7 @@ cache:
     - echo $MONGO_PEM
     - mkdir app/lib
     - mv $MONGO_PEM app/lib
-    - cat app/lib
+    - cat app/lib/sber.crt
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
     - >-
