@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from app.models.common import PyObjectId
+from src.schemas import PyObjectId
 
 
 class Roles(str, Enum):

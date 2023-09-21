@@ -1,7 +1,7 @@
 import os
 
-from app.dependencies.db import MongoDatabase
-from app.models.auth import Token
+from src.database import MongoDatabase
+from src.auth.schemas import Token
 
 
 class Blacklist:

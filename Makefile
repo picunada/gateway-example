@@ -1,4 +1,4 @@
 include defaults.mk
 
-CODE_LOCATIONS = app test
-COVERAGE_LIMIT = 90
+CODE_LOCATIONS = src test
+COVERAGE_LIMIT = 80

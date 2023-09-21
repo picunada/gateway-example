@@ -4,8 +4,8 @@ import pytest
 
 from fastapi.testclient import TestClient
 
-from app.dependencies.db import MongoDatabase
-from app.main import app
+from src.database import MongoDatabase
+from src.main import app
 
 db = MongoDatabase()
 

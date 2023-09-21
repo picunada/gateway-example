@@ -71,9 +71,9 @@ cache:
     entrypoint: [""]
   script:
     - echo $MONGO_PEM
-    - mkdir app/lib
-    - cat $MONGO_PEM > app/lib/sber.crt
-    - cat app/lib/sber.crt
+    - mkdir src/lib
+    - cat $MONGO_PEM > src/lib/sber.crt
+    - cat src/lib/sber.crt
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
     - >-

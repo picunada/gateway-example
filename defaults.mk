@@ -14,7 +14,7 @@ format-default: .venv
 
 lint-default: .venv
 	@echo -n -e "==> Running flake8...\n"
-	@.venv/bin/flake8 --show-source --statistics $(CODE_LOCATIONS) --exclude=.venv,test
+	@.venv/bin/flake8 --show-source --statistics $(CODE_LOCATIONS) --exclude=.venv,test,__init__.py
 	@echo -e "$(OK_MSG)"
 
 mypy-default: .venv
@@ -24,7 +24,7 @@ mypy-default: .venv
 
 unittest-default: .venv
 	@echo -e "==> Running tests..\n"
-	@PYTHONPATH=. UVICORN_ENV=test .venv/bin/pytest $(CODE_LOCATIONS) --cov-config=.coveragerc --cov-report term-missing:skip-covered --cov $(CODE_LOCATIONS) --cov-report=xml --no-cov-on-fail --cov-fail-under=$(COVERAGE_LIMIT) -W ignore::DeprecationWarning -vv
+	@PYTHONPATH=. UVICORN_ENV=test SECRET_KEY=test .venv/bin/pytest $(CODE_LOCATIONS) --cov-config=.coveragerc --cov-report term-missing:skip-covered --cov $(CODE_LOCATIONS) --cov-report=xml --no-cov-on-fail --cov-fail-under=$(COVERAGE_LIMIT) -W ignore::DeprecationWarning -vv
 
 .venv: requirements.txt test-requirements.txt
 	@echo "==> Creating virtualenv...\n"

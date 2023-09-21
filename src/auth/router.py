@@ -3,11 +3,11 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, Body
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.dependencies.auth import Auth
-from app.dependencies.db import get_database, MongoDatabase
-from app.models.auth import Token
-from app.service.blacklist import Blacklist
-from app.service.jwt import JWT
+from src.auth.service import Auth
+from src.database import get_database, MongoDatabase
+from src.auth.schemas import Token
+from src.auth.blacklist import Blacklist
+from src.auth.jwt import JWT
 
 router = APIRouter()
 

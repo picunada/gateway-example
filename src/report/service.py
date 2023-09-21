@@ -3,8 +3,8 @@ from typing import Optional, Tuple, Mapping
 
 import requests
 
-from app.models.common import PaginatedResponse
-from app.models.report import ReportOut, ReportIn
+from src.schemas import PaginatedResponse
+from src.report.schemas import ReportOut, ReportIn
 
 
 class ReportService:

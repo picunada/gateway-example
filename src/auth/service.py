@@ -1,6 +1,6 @@
 import os
-from typing import Annotated, Optional, Sequence
-from fastapi import HTTPException, Depends, Security
+from typing import Annotated, Optional
+from fastapi import HTTPException, Depends
 from fastapi.security import (
     OAuth2PasswordBearer,
     SecurityScopes,
@@ -10,11 +10,11 @@ from passlib.context import CryptContext
 from pydantic import ValidationError
 from starlette import status
 
-from app.dependencies.db import MongoDatabase, get_database
-from app.models.auth import TokenData, Token
-from app.models.user import UserInDb
-from app.service.blacklist import Blacklist
-from app.service.jwt import JWT
+from src.database import MongoDatabase, get_database
+from src.auth.schemas import TokenData, Token
+from src.user.schemas import UserInDb
+from src.auth.blacklist import Blacklist
+from src.auth.jwt import JWT
 
 
 class Auth:
@@ -144,24 +144,3 @@ class Auth:
 
         except ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Refresh token expired.")
-
-
-class UserWithRole:
-    auth = Auth()
-
-    def __init__(self, roles: Optional[Sequence[str]]):
-        self.roles = roles or []
-
-    def __call__(
-        self,
-        user: Annotated[UserInDb, Security(auth.get_current_user, scopes=["read"])],
-    ) -> UserInDb:
-        if not self.roles:
-            return user
-        if user.role not in self.roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient access rights",
-            )
-
-        return user

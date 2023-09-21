@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from jose import jwt
 
@@ -12,6 +12,7 @@ REFRESH_TOKEN_EXPIRE_MINUTES = 30
 class JWT:
     @staticmethod
     def encode_access_token(data: dict) -> str:
+        assert SECRET_KEY is not None
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode.update({"exp": expire, "type": "access"})
@@ -20,6 +21,7 @@ class JWT:
 
     @staticmethod
     def encode_refresh_token(data: dict) -> str:
+        assert SECRET_KEY is not None
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
         to_encode.update({"exp": expire, "type": "refresh"})
@@ -28,4 +30,5 @@ class JWT:
 
     @staticmethod
     def decode(token: str):
+        assert SECRET_KEY is not None
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

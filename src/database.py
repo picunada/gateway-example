@@ -11,14 +11,14 @@ settings: Mapping[str, Mapping[str, Any]] = {
         "tls": True,
         "authMechanism": "SCRAM-SHA-1",
         "tlsAllowInvalidHostnames": True,
-        "tlsCAFile": f"{os.getcwd()}/app/lib/sber.crt",
+        "tlsCAFile": f"{os.getcwd()}/src/lib/sber.crt",
     },
     "dev": {
         "host": os.getenv("MONGO_URL"),
         "tls": True,
         "authMechanism": "SCRAM-SHA-1",
         "tlsAllowInvalidHostnames": True,
-        "tlsCAFile": f"{os.getcwd()}/app/lib/sber.crt",
+        "tlsCAFile": f"{os.getcwd()}/src/lib/sber.crt",
     },
     "test": {"host": os.getenv("TEST_DATABASE_URL")},
 }

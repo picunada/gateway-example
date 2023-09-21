@@ -2,7 +2,7 @@ from typing import List, Union
 
 from pydantic import BaseModel, Field
 
-from app.models.common import PyObjectId
+from src.schemas import PyObjectId
 
 
 class ReportField(BaseModel):
