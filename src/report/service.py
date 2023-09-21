@@ -13,7 +13,7 @@ class ReportService:
         law: int, page: int = 1, limit: int = 15
     ) -> Tuple[Optional[PaginatedResponse[ReportOut]], Optional[Tuple[int, dict]]]:
         response = requests.get(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report{law}/?page={page}&limit{limit}"
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/?page={page}&limit{limit}"
         )
 
         if response.status_code == 200:
@@ -25,9 +25,11 @@ class ReportService:
 
     @staticmethod
     def get_one(
-        law: int, id: str
+        law: int, report_id: str
     ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
-        response = requests.get(f"{os.getenv('REPORT_SVC_ADDRESS')}/report{law}/{id}")
+        response = requests.get(
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}"
+        )
 
         if response.status_code == 200:
             result = ReportOut.model_validate(response.json())
@@ -41,7 +43,7 @@ class ReportService:
         law: int, report: ReportIn
     ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
         response = requests.post(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report{law}/", json=report.model_dump()
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/", json=report.model_dump()
         )
 
         if response.status_code == 201:
@@ -53,10 +55,10 @@ class ReportService:
 
     @staticmethod
     def update(
-        law: int, id: str, report: ReportIn
+        law: int, report_id: str, report: ReportIn
     ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
         response = requests.put(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report{law}/{id}",
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}",
             json=report.model_dump(),
         )
 
@@ -69,10 +71,10 @@ class ReportService:
 
     @staticmethod
     def delete(
-        law: int, id: str
+        law: int, report_id: str
     ) -> Tuple[Optional[Mapping[str, str]], Optional[Tuple[int, dict]]]:
         response = requests.delete(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report{law}/{id}",
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}",
         )
 
         if response.status_code == 204:
