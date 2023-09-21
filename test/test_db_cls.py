@@ -1,4 +1,4 @@
-from app.dependencies.db import MongoDatabase
+from src.database import MongoDatabase
 
 
 def test_if_singleton():

@@ -1,6 +1,6 @@
 import os
 
-from app.models.user import UserInDb, Roles, UserOut
+from src.user.schemas import UserInDb, Roles, UserOut
 from .test_base import db, client, user
 
 
@@ -225,6 +225,8 @@ class TestUser:
         )
 
         response = delete.json()
+
+        print(response)
 
         assert delete.status_code == 204
         assert response["detail"] == "OK"

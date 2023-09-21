@@ -2,17 +2,17 @@ from typing import Annotated, Mapping
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.dependencies.auth import UserWithRole
-from app.models.common import PaginatedResponse
-from app.models.report import ReportOut, ReportIn
-from app.models.user import Roles, UserInDb
-from app.service.report import ReportService
+from src.auth.dependencies import UserWithRole
+from src.schemas import PaginatedResponse
+from src.report.schemas import ReportOut, ReportIn
+from src.user.schemas import Roles, UserInDb
+from src.report.service import ReportService
 
-router = APIRouter()
+router44 = APIRouter()
 
 
-@router.get("/")
-def list_reports(
+@router44.get("/")
+def list_reports_44(
     service: Annotated[ReportService, Depends(ReportService)],
     user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin]))],
     page: int = 1,
@@ -29,13 +29,13 @@ def list_reports(
     return result
 
 
-@router.get("/{id}")
-def get_one(
+@router44.get("/{report_id}")
+def get_one_report_44(
     service: Annotated[ReportService, Depends(ReportService)],
     user: Annotated[bool, Depends(UserWithRole([Roles.admin]))],
-    id: str,
+    report_id: str,
 ) -> ReportOut:
-    result, err = service.get_one(44, id)
+    result, err = service.get_one(44, report_id)
 
     if err:
         status_code, detail = err
@@ -46,8 +46,8 @@ def get_one(
     return result
 
 
-@router.post("/")
-def create(
+@router44.post("/")
+def create_report_44(
     service: Annotated[ReportService, Depends(ReportService)], report_in: ReportIn
 ) -> ReportOut:
     result, err = service.create(44, report_in)
@@ -61,14 +61,14 @@ def create(
     return result
 
 
-@router.put("/{id}")
-def update(
+@router44.put("/{report_id}")
+def update_report_44(
     service: Annotated[ReportService, Depends(ReportService)],
     user: Annotated[UserInDb, Depends(UserWithRole([]))],
-    id: str,
+    report_id: str,
     report_in: ReportIn,
 ) -> ReportOut:
-    result, err = service.update(44, id, report_in)
+    result, err = service.update(44, report_id, report_in)
 
     if err:
         status_code, detail = err
@@ -79,13 +79,13 @@ def update(
     return result
 
 
-@router.delete("/{id}")
-def delete(
+@router44.delete("/{report_id}")
+def delete_report_44(
     service: Annotated[ReportService, Depends(ReportService)],
     user: Annotated[UserInDb, Depends(UserWithRole([]))],
-    id: str,
+    report_id: str,
 ) -> Mapping[str, str]:
-    result, err = service.delete(44, id)
+    result, err = service.delete(44, report_id)
 
     if err:
         status_code, detail = err
