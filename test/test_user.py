@@ -121,6 +121,39 @@ class TestUser:
         assert not_found.status_code == 404
         assert not_found.json() == {"detail": "User not found"}
 
+    def test_user_me(self, client, user):
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        user_data = users.find_one({"email": "test@example.com"})
+        user_data = UserOut.model_validate(user_data)
+
+        auth = client.post(
+            "/api/v1/auth/access",
+            headers={"content-type": "application/x-www-form-urlencoded"},
+            data=dict(
+                username=user["email"],
+                password=user["password"],
+                scope=["read"],
+            ),
+        )
+
+        assert auth.status_code == 200
+        assert auth.json()["access_token"] is not None
+
+        me = client.get(
+            "/api/v1/user/me",
+            headers={
+                "Authorization": f"Bearer {auth.json()['access_token']}",
+            },
+        )
+
+        data = user_data.model_dump_json(by_alias=True).strip().lower()
+        response = str(me.json()).replace("'", '"').replace(" ", "").lower()
+
+        print(response)
+
+        assert me.status_code == 200
+        assert response == data
+
     def test_user_update(self, client, user):
         users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         user_data = users.find_one({"email": "test@example.com"})
