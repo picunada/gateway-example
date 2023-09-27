@@ -47,7 +47,7 @@ class UserService:
         except InvalidId as exc:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid ID should be 12-byt hex string",
+                detail="Invalid ID should be 12-byte hex string",
             ) from exc
 
     def insert_one(self, user: UserIn):

@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 from src.auth.dependencies import UserWithRole
 from src.auth.service import Auth
 from src.schemas import PaginatedResponse
-from src.user.schemas import Roles, User, UserIn, UserOut
+from src.user.schemas import Roles, User, UserIn, UserOut, UserInDb
 
 from src.user.service import UserService
 
@@ -16,13 +16,21 @@ auth = Auth()
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def list_users(
-    user: Annotated[bool, Depends(UserWithRole([Roles.admin]))],
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin]))],
     service: Annotated[UserService, Depends(UserService())],
     page: int = 1,
     limit: int = 15,
 ) -> PaginatedResponse[UserOut]:
     result = service.list(page, limit)
     return result
+
+
+@router.get("/me", status_code=status.HTTP_200_OK)
+async def get_user_own_info(
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.default, Roles.admin]))],
+) -> UserOut:
+    user_out = UserOut.model_validate(user.model_dump())
+    return user_out
 
 
 @router.get("/{user_id}", status_code=status.HTTP_200_OK)
