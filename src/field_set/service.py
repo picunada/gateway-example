@@ -4,20 +4,20 @@ from typing import Optional, Tuple, Mapping
 import requests
 
 from src.schemas import PaginatedResponse
-from src.report.schemas import ReportOut, ReportIn
+from src.field_set.schemas import FieldSet, FieldSetOut
 
 
-class ReportService:
+class FieldSetService:
     @staticmethod
     def get(
         law: int, page: int = 1, limit: int = 15
-    ) -> Tuple[Optional[PaginatedResponse[ReportOut]], Optional[Tuple[int, dict]]]:
+    ) -> Tuple[Optional[PaginatedResponse[FieldSetOut]], Optional[Tuple[int, dict]]]:
         response = requests.get(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/?page={page}&limit{limit}"
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/field_set/{law}/?page={page}&limit{limit}"
         )
 
         if response.status_code == 200:
-            result = PaginatedResponse[ReportOut].model_validate(response.json())
+            result = PaginatedResponse[FieldSetOut].model_validate(response.json())
         else:
             return None, (response.status_code, response.json())
 
@@ -25,14 +25,14 @@ class ReportService:
 
     @staticmethod
     def get_one(
-        law: int, report_id: str
-    ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
+        law: int, field_set_id: str
+    ) -> Tuple[Optional[FieldSetOut], Optional[Tuple[int, dict]]]:
         response = requests.get(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}"
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/field_set/{law}/{field_set_id}"
         )
 
         if response.status_code == 200:
-            result = ReportOut.model_validate(response.json())
+            result = FieldSetOut.model_validate(response.json())
         else:
             return None, (response.status_code, response.json())
 
@@ -40,14 +40,15 @@ class ReportService:
 
     @staticmethod
     def create(
-        law: int, report: ReportIn
-    ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
+        law: int, field_set: FieldSet
+    ) -> Tuple[Optional[FieldSetOut], Optional[Tuple[int, dict]]]:
         response = requests.post(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/", json=report.model_dump()
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/field_set/{law}/",
+            json=field_set.model_dump(),
         )
 
         if response.status_code == 201:
-            result = ReportOut.model_validate(response.json())
+            result = FieldSetOut.model_validate(response.json())
         else:
             return None, (response.status_code, response.json())
 
@@ -55,15 +56,15 @@ class ReportService:
 
     @staticmethod
     def update(
-        law: int, report_id: str, report: ReportIn
-    ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
+        law: int, field_set_id: str, field_set: FieldSet
+    ) -> Tuple[Optional[FieldSetOut], Optional[Tuple[int, dict]]]:
         response = requests.put(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}",
-            json=report.model_dump(),
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/field_set/{law}/{field_set_id}",
+            json=field_set.model_dump(),
         )
 
         if response.status_code == 200:
-            result = ReportOut.model_validate(response.json())
+            result = FieldSetOut.model_validate(response.json())
         else:
             return None, (response.status_code, response.json())
 
@@ -71,10 +72,10 @@ class ReportService:
 
     @staticmethod
     def delete(
-        law: int, report_id: str
+        law: int, field_set_id: str
     ) -> Tuple[Optional[Mapping[str, str]], Optional[Tuple[int, dict]]]:
         response = requests.delete(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}",
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/field_set/{law}/{field_set_id}",
         )
 
         if response.status_code == 204:

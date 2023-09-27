@@ -4,21 +4,21 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from src.auth.dependencies import UserWithRole
 from src.schemas import PaginatedResponse
-from src.report.schemas import ReportOut, ReportIn
+from src.field_set.schemas import FieldSet, FieldSetOut
 from src.user.schemas import Roles, UserInDb
-from src.report.service import ReportService
+from src.field_set.service import FieldSetService
 
 router44 = APIRouter()
 router223 = APIRouter()
 
 
 @router44.get("/")
-def list_reports_44(
-    service: Annotated[ReportService, Depends(ReportService)],
+def list_fields_set_44(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin]))],
     page: int = 1,
     limit: int = 15,
-) -> PaginatedResponse[ReportOut]:
+) -> PaginatedResponse[FieldSetOut]:
     result, err = service.get(44, page, limit)
 
     if err:
@@ -30,13 +30,13 @@ def list_reports_44(
     return result
 
 
-@router44.get("/{report_id}")
-def get_one_report_44(
-    service: Annotated[ReportService, Depends(ReportService)],
+@router44.get("/{field_set_id}")
+def get_one_field_set_44(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[bool, Depends(UserWithRole([Roles.admin]))],
-    report_id: str,
-) -> ReportOut:
-    result, err = service.get_one(44, report_id)
+    field_set_id: str,
+) -> FieldSetOut:
+    result, err = service.get_one(44, field_set_id)
 
     if err:
         status_code, detail = err
@@ -48,10 +48,11 @@ def get_one_report_44(
 
 
 @router44.post("/")
-def create_report_44(
-    service: Annotated[ReportService, Depends(ReportService)], report_in: ReportIn
-) -> ReportOut:
-    result, err = service.create(44, report_in)
+def create_field_set_44(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
+    field_set_in: FieldSet,
+) -> FieldSetOut:
+    result, err = service.create(44, field_set_in)
 
     if err:
         status_code, detail = err
@@ -62,14 +63,14 @@ def create_report_44(
     return result
 
 
-@router44.put("/{report_id}")
-def update_report_44(
-    service: Annotated[ReportService, Depends(ReportService)],
+@router44.put("/{field_set_id}")
+def update_query_44(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[UserInDb, Depends(UserWithRole([]))],
-    report_id: str,
-    report_in: ReportIn,
-) -> ReportOut:
-    result, err = service.update(44, report_id, report_in)
+    field_set_id: str,
+    field_set_in: FieldSet,
+) -> FieldSetOut:
+    result, err = service.update(44, field_set_id, field_set_in)
 
     if err:
         status_code, detail = err
@@ -80,13 +81,13 @@ def update_report_44(
     return result
 
 
-@router44.delete("/{report_id}")
-def delete_report_44(
-    service: Annotated[ReportService, Depends(ReportService)],
+@router44.delete("/{field_set_id}")
+def delete_field_set_44(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[UserInDb, Depends(UserWithRole([]))],
-    report_id: str,
+    field_set_id: str,
 ) -> Mapping[str, str]:
-    result, err = service.delete(44, report_id)
+    result, err = service.delete(44, field_set_id)
 
     if err:
         status_code, detail = err
@@ -98,12 +99,12 @@ def delete_report_44(
 
 
 @router223.get("/")
-def list_reports_223(
-    service: Annotated[ReportService, Depends(ReportService)],
+def list_field_set_223(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin]))],
     page: int = 1,
     limit: int = 15,
-) -> PaginatedResponse[ReportOut]:
+) -> PaginatedResponse[FieldSetOut]:
     result, err = service.get(44, page, limit)
 
     if err:
@@ -115,13 +116,13 @@ def list_reports_223(
     return result
 
 
-@router223.get("/{report_id}")
-def get_one_report_223(
-    service: Annotated[ReportService, Depends(ReportService)],
+@router223.get("/{field_set_id}")
+def get_one_field_set_223(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[bool, Depends(UserWithRole([Roles.admin]))],
-    report_id: str,
-) -> ReportOut:
-    result, err = service.get_one(44, report_id)
+    field_set_id: str,
+) -> FieldSetOut:
+    result, err = service.get_one(44, field_set_id)
 
     if err:
         status_code, detail = err
@@ -133,10 +134,11 @@ def get_one_report_223(
 
 
 @router223.post("/")
-def create_report_223(
-    service: Annotated[ReportService, Depends(ReportService)], report_in: ReportIn
-) -> ReportOut:
-    result, err = service.create(44, report_in)
+def create_field_set_223(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
+    field_set_in: FieldSet,
+) -> FieldSetOut:
+    result, err = service.create(44, field_set_in)
 
     if err:
         status_code, detail = err
@@ -147,14 +149,14 @@ def create_report_223(
     return result
 
 
-@router223.put("/{report_id}")
-def update_report_223(
-    service: Annotated[ReportService, Depends(ReportService)],
+@router223.put("/{field_set_id}")
+def update_field_set_223(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[UserInDb, Depends(UserWithRole([]))],
-    report_id: str,
-    report_in: ReportIn,
-) -> ReportOut:
-    result, err = service.update(44, report_id, report_in)
+    field_set_id: str,
+    field_set_in: FieldSet,
+) -> FieldSetOut:
+    result, err = service.update(44, field_set_id, field_set_in)
 
     if err:
         status_code, detail = err
@@ -165,13 +167,13 @@ def update_report_223(
     return result
 
 
-@router223.delete("/{report_id}")
-def delete_report_223(
-    service: Annotated[ReportService, Depends(ReportService)],
+@router223.delete("/{field_set_id}")
+def delete_field_set_223(
+    service: Annotated[FieldSetService, Depends(FieldSetService)],
     user: Annotated[UserInDb, Depends(UserWithRole([]))],
-    report_id: str,
+    field_set_id: str,
 ) -> Mapping[str, str]:
-    result, err = service.delete(44, report_id)
+    result, err = service.delete(44, field_set_id)
 
     if err:
         status_code, detail = err
