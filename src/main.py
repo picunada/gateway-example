@@ -1,12 +1,7 @@
-import debugpy
-import uvicorn
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src import (auth, field_set, generate, query_set, report, subscription,
-                 templates, user)
-
-debugpy.listen(("0.0.0.0", 81))
+from src import auth, field_set, query_set, report, user
 
 import debugpy
 
@@ -16,11 +11,7 @@ origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",
     "http://localhost:3000",
-    "http://localhost:5173",
     "http://localhost:8080",
-    "https://dev.multitender.ru",
-    "https://multitender.ru",
-    "http://localhost:5314",
 ]
 
 app = FastAPI(title="Multitender gateway")
