@@ -1,3 +1,5 @@
 [run]
 # Omit remote services from coverage
 omit = src/report/*
+       src/field_set/*
+       src/query_set/*
