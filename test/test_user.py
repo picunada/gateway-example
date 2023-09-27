@@ -121,10 +121,7 @@ class TestUser:
         )
 
         assert get_one_invalid_id.status_code == 404
-        assert (
-            get_one_invalid_id.json()["detail"]
-            == "Invalid ID should be 12-byte hex string"
-        )
+        assert get_one_invalid_id.json()['detail'] == "Invalid ID should be 12-byte hex string"
 
         not_found = client.get(
             "/api/v1/user/737f2466c578e69ac37c0fd5",
