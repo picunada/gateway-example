@@ -135,9 +135,7 @@ class TestUser:
         assert not_found.json() == {"detail": "User not found"}
 
     def test_user_me(self, client, user):
-        users = db.client.get_database("mt-services")[
-            f"users:{os.getenv('UVICORN_ENV')}"
-        ]
+        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserOut.model_validate(user_data)
 
