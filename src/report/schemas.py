@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import Dict
 
 from pydantic import BaseModel, Field
 
@@ -12,6 +12,7 @@ class ReportField(BaseModel):
     func: str
     type: str
     query: str
+
 
 class ReportIn(BaseModel):
     name: str
@@ -27,10 +28,7 @@ class ReportIn(BaseModel):
                 {
                     "name": "purchase",
                     "description": "Закупки",
-                    "reportParams": {
-                        "^startDate": "date",
-                        "^endDate": "date"
-                    },
+                    "reportParams": {"^startDate": "date", "^endDate": "date"},
                     "queries": {
                         "purchaseByDays": {
                             "querySet": "purchase",
@@ -39,8 +37,8 @@ class ReportIn(BaseModel):
                             "purchaseBySourceId": {
                                 "querySet": "purchase",
                                 "#sourceId": "~sourceId",
-                                "#collection": "~collection"
-                            }
+                                "#collection": "~collection",
+                            },
                         }
                     },
                     "fields": {
@@ -50,7 +48,7 @@ class ReportIn(BaseModel):
                             "fieldName": "purchaseNumber",
                             "func": "first",
                             "type": "str",
-                            "query": "purchaseByDays"
+                            "query": "purchaseByDays",
                         },
                         "docPublishDate": {
                             "fieldSet": "fieldSets223",
@@ -58,9 +56,9 @@ class ReportIn(BaseModel):
                             "fieldName": "docPublishDate",
                             "func": "first",
                             "type": "str",
-                            "query": "purchaseBySourceId"
+                            "query": "purchaseBySourceId",
                         },
-                    }
+                    },
                 }
             ]
         },
@@ -82,10 +80,7 @@ class ReportOut(BaseModel):
                 {
                     "name": "purchase",
                     "description": "Закупки",
-                    "reportParams": {
-                        "^startDate": "date",
-                        "^endDate": "date"
-                    },
+                    "reportParams": {"^startDate": "date", "^endDate": "date"},
                     "queries": {
                         "purchaseByDays": {
                             "querySet": "purchase",
@@ -94,8 +89,8 @@ class ReportOut(BaseModel):
                             "purchaseBySourceId": {
                                 "querySet": "purchase",
                                 "#sourceId": "~sourceId",
-                                "#collection": "~collection"
-                            }
+                                "#collection": "~collection",
+                            },
                         }
                     },
                     "fields": {
@@ -105,7 +100,7 @@ class ReportOut(BaseModel):
                             "fieldName": "purchaseNumber",
                             "func": "first",
                             "type": "str",
-                            "query": "purchaseByDays"
+                            "query": "purchaseByDays",
                         },
                         "docPublishDate": {
                             "fieldSet": "fieldSets223",
@@ -113,9 +108,9 @@ class ReportOut(BaseModel):
                             "fieldName": "docPublishDate",
                             "func": "first",
                             "type": "str",
-                            "query": "purchaseBySourceId"
+                            "query": "purchaseBySourceId",
                         },
-                    }
+                    },
                 }
             ]
         },
