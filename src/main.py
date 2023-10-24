@@ -6,6 +6,7 @@ origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",
     "http://localhost:3000",
+    "http://localhost:5173",
     "http://localhost:8080",
 ]
 
@@ -34,4 +35,5 @@ router.include_router(
     query_set.router223, prefix="/query_set/223", tags=["QuerySet 223"]
 )
 
+app.include_router(router, prefix="/api/v1")
 app.include_router(router, prefix="/api/v1")

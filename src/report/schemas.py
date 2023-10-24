@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Dict
 
 from pydantic import BaseModel, Field
 
@@ -7,43 +7,60 @@ from src.schemas import PyObjectId
 
 class ReportField(BaseModel):
     name: str
-    path: Union[str, List[str]]
+    field_set: str
+    field_name: str
+    func: str
     type: str
-    description: str
-
+    query: str
 
 class ReportIn(BaseModel):
     name: str
-    active: bool | None = False
-    query: str
-    fields: List[ReportField]
-    title: str | None = None
-    fieldsOrder: List[str] | str | None = []
-    collection: str
-    db: str
-    subQuery: str | None = None
-    subCollection: str | None = None
+    description: str
+    report_params: Dict[str, str]
+    queries: Dict[str, Dict[str, str | Dict[str, str]]]
+    fields: Dict[str, ReportField]
 
     model_config = {
         "arbitrary_types_allowed": True,
         "json_schema_extra": {
             "examples": [
                 {
-                    "name": "test",
-                    "active": "true",
-                    "db": "test",
-                    "collection": "test",
-                    "query": '{"$and": [{"loadDate": {"$gte": startDate}}, {"loadDate": {"$lt": endDate}}]}',
-                    "fields": [
-                        {
-                            "name": "regNum",
-                            "path": "regNum",
+                    "name": "purchase",
+                    "description": "Закупки",
+                    "reportParams": {
+                        "^startDate": "date",
+                        "^endDate": "date"
+                    },
+                    "queries": {
+                        "purchaseByDays": {
+                            "querySet": "purchase",
+                            "#startDate": "^startDate",
+                            "#endDate": "^endDate",
+                            "purchaseBySourceId": {
+                                "querySet": "purchase",
+                                "#sourceId": "~sourceId",
+                                "#collection": "~collection"
+                            }
+                        }
+                    },
+                    "fields": {
+                        "purchaseNumber": {
+                            "fieldSet": "fieldSets223",
+                            "name": "purchaseActual",
+                            "fieldName": "purchaseNumber",
+                            "func": "first",
                             "type": "str",
-                            "description": "Регистрационный номер контракта",
+                            "query": "purchaseByDays"
                         },
-                    ],
-                    "title": "Предметы контрактов",
-                    "subCollection": "",
+                        "docPublishDate": {
+                            "fieldSet": "fieldSets223",
+                            "name": "purchase",
+                            "fieldName": "docPublishDate",
+                            "func": "first",
+                            "type": "str",
+                            "query": "purchaseBySourceId"
+                        },
+                    }
                 }
             ]
         },
@@ -53,37 +70,52 @@ class ReportIn(BaseModel):
 class ReportOut(BaseModel):
     id: PyObjectId = Field(alias="_id")
     name: str
-    active: bool | None = False
-    query: str
-    fields: List[ReportField]
-    title: str | None = None
-    fieldsOrder: List[str] | str | None = []
-    collection: str
-    db: str
-    subQuery: str | None = None
-    subCollection: str | None = None
+    description: str
+    report_params: Dict[str, str]
+    queries: Dict[str, Dict[str, str | Dict[str, str]]]
+    fields: Dict[str, ReportField]
 
     model_config = {
         "arbitrary_types_allowed": True,
         "json_schema_extra": {
             "examples": [
                 {
-                    "_id": "6323593369effe25379427ff",
-                    "name": "contract_44",
-                    "active": "true",
-                    "db": "contracts44",
-                    "collection": "contractActualInfo",
-                    "query": '{"$and": [{"loadDate": {"$gte": startDate}}, {"loadDate": {"$lt": endDate}}]}',
-                    "fields": [
-                        {
-                            "name": "regNum",
-                            "path": "regNum",
+                    "name": "purchase",
+                    "description": "Закупки",
+                    "reportParams": {
+                        "^startDate": "date",
+                        "^endDate": "date"
+                    },
+                    "queries": {
+                        "purchaseByDays": {
+                            "querySet": "purchase",
+                            "#startDate": "^startDate",
+                            "#endDate": "^endDate",
+                            "purchaseBySourceId": {
+                                "querySet": "purchase",
+                                "#sourceId": "~sourceId",
+                                "#collection": "~collection"
+                            }
+                        }
+                    },
+                    "fields": {
+                        "purchaseNumber": {
+                            "fieldSet": "fieldSets223",
+                            "name": "purchaseActual",
+                            "fieldName": "purchaseNumber",
+                            "func": "first",
                             "type": "str",
-                            "description": "Регистрационный номер контракта",
+                            "query": "purchaseByDays"
                         },
-                    ],
-                    "title": "Предметы контрактов",
-                    "subCollection": "",
+                        "docPublishDate": {
+                            "fieldSet": "fieldSets223",
+                            "name": "purchase",
+                            "fieldName": "docPublishDate",
+                            "func": "first",
+                            "type": "str",
+                            "query": "purchaseBySourceId"
+                        },
+                    }
                 }
             ]
         },
