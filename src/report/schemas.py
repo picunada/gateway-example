@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict
 
 from pydantic import BaseModel, Field
 
@@ -12,6 +12,7 @@ class ReportField(BaseModel):
     func: str
     type: str
     query: str
+
 
 class ReportIn(BaseModel):
     name: str
@@ -108,7 +109,7 @@ class ReportIn(BaseModel):
                             "fieldName": "purchaseNumber",
                             "func": "first",
                             "type": "str",
-                            "query": "purchaseByDays"
+                            "query": "purchaseByDays",
                         },
                         "docPublishDate": {
                             "fieldSet": "fieldSets223",
@@ -223,7 +224,7 @@ class ReportOut(BaseModel):
                             "fieldName": "purchaseNumber",
                             "func": "first",
                             "type": "str",
-                            "query": "purchaseByDays"
+                            "query": "purchaseByDays",
                         },
                         "docPublishDate": {
                             "fieldSet": "fieldSets223",
