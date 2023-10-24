@@ -24,7 +24,7 @@ settings: Mapping[str, Mapping[str, Any]] = {
         "tlsCAFile": f"{os.getcwd()}/src/lib/sber.crt",
     },
     "test": {"host": os.getenv("TEST_DATABASE_URL")},
-    "local": {"host": os.getenv("TEST_DATABASE_URL")},
+    "local": {"host": os.getenv("TEST_DATABASE_URL")}
 }
 
 load_dotenv()

@@ -11,6 +11,7 @@ origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",
     "http://localhost:3000",
+    "http://localhost:5173",
     "http://localhost:8080",
 ]
 
@@ -59,6 +60,3 @@ router.include_router(
 
 app.include_router(router, prefix="/api/v1")
 app.include_router(router, prefix="/api/v1")
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
