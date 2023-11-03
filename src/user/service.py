@@ -1,14 +1,15 @@
 import os
 from typing import Optional
+
+from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import Depends, HTTPException, status
 from starlette.responses import JSONResponse
 
 from src.auth.service import Auth
 from src.database import MongoDatabase, get_database
 from src.schemas import PaginatedResponse
-from src.user.schemas import UserOut, UserIn, UserInDb, Roles, User
-from bson import ObjectId
-from bson.errors import InvalidId
+from src.user.schemas import Roles, User, UserIn, UserInDb, UserOut
 
 
 class UserService:
@@ -48,11 +49,16 @@ class UserService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Invalid ID should be 12-byte hex string",
+                detail="Invalid ID should be 12-byte hex string",
             ) from exc
 
     def insert_one(self, user: UserIn):
         mongo = self.db.client
         users = mongo.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        if users.find_one({"email": user.email}):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, detail="User with email already exists."
+            )
         hashed_password = self.auth.get_password_hash(user.password)
         user_in_db = UserInDb(
             **user.model_dump(), hashed_password=hashed_password, role=Roles.default

@@ -1,14 +1,21 @@
 import os
+from copy import copy
 
-from src.user.schemas import UserInDb, Roles, UserOut
-from .test_base import db, client, user
+from src.user.schemas import Roles, UserInDb, UserOut
+
+from .test_base import client, db, user
 
 
 class TestUser:
     def test_user_creation(self, client, user):
+        user = copy(user)
+        user["email"] = "test2@example.com"
+
         response = client.post(
             "/api/v1/user", headers={"content-type": "application/json"}, json=user
         )
+
+        print(response.json())
 
         assert response.status_code == 201
 
@@ -40,9 +47,13 @@ class TestUser:
         )
 
     def test_user_get(self, client, user):
-        blacklist = db.client.get_database("mt-services")[f"blacklist:{os.getenv('UVICORN_ENV')}"]
+        blacklist = db.client.get_database("mt-services")[
+            f"blacklist:{os.getenv('UVICORN_ENV')}"
+        ]
         blacklist.delete_many({})
-        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         users.update_one({"email": "test@example.com"}, {"$set": {"role": "admin"}})
 
         auth = client.post(
@@ -68,7 +79,9 @@ class TestUser:
         assert len(get.json()["results"]) != 0
 
     def test_user_get_one(self, client, user):
-        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserOut.model_validate(user_data)
 
@@ -108,7 +121,10 @@ class TestUser:
         )
 
         assert get_one_invalid_id.status_code == 404
-        assert get_one_invalid_id.json()['detail'] == "Invalid ID should be 12-byte hex string"
+        assert (
+            get_one_invalid_id.json()["detail"]
+            == "Invalid ID should be 12-byte hex string"
+        )
 
         not_found = client.get(
             "/api/v1/user/737f2466c578e69ac37c0fd5",
@@ -122,7 +138,9 @@ class TestUser:
         assert not_found.json() == {"detail": "User not found"}
 
     def test_user_me(self, client, user):
-        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserOut.model_validate(user_data)
 
@@ -155,7 +173,9 @@ class TestUser:
         assert response == data
 
     def test_user_update(self, client, user):
-        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserInDb.model_validate(user_data)
 
@@ -207,7 +227,7 @@ class TestUser:
         )
 
         assert not_found.status_code == 404
-        assert not_found.json()['detail'] == "User not found"
+        assert not_found.json()["detail"] == "User not found"
 
         invalid = client.put(
             "/api/v1/user/1234",
@@ -224,10 +244,12 @@ class TestUser:
         )
 
         assert invalid.status_code == 404
-        assert invalid.json()['detail'] == "Invalid ID should be 12-byte hex string"
+        assert invalid.json()["detail"] == "Invalid ID should be 12-byte hex string"
 
     def test_user_delete(self, client, user):
-        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         users.insert_one(
             UserInDb(
                 email="test2@example.com",

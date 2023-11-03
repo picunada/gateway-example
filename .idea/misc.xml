@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="Black">
+    <option name="enabledOnSave" value="true" />
+    <option name="sdkUUID" value="58ba782f-37cb-400f-9993-cb1f8212380a" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (mt-gateway)" project-jdk-type="Python SDK" />
 </project>

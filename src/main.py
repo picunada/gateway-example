@@ -1,6 +1,7 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src import user, auth, report, field_set, query_set
+
+from src import auth, field_set, generate, query_set, report, user
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -11,6 +12,15 @@ origins = [
 ]
 
 app = FastAPI(title="Multitender gateway")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,6 +44,8 @@ router.include_router(query_set.router44, prefix="/query_set/44", tags=["QuerySe
 router.include_router(
     query_set.router223, prefix="/query_set/223", tags=["QuerySet 223"]
 )
+router.include_router(generate.router, prefix="/generate", tags=["Generate"])
 
+app.include_router(router, prefix="/api/v1")
 app.include_router(router, prefix="/api/v1")
 app.include_router(router, prefix="/api/v1")

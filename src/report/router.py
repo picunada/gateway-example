@@ -15,11 +15,15 @@ router223 = APIRouter()
 @router44.get("/")
 def list_reports_44(
     service: Annotated[ReportService, Depends(ReportService)],
-    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin]))],
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin, Roles.default]))],
     page: int = 1,
     limit: int = 15,
 ) -> PaginatedResponse[ReportOut]:
-    result, err = service.get(44, page, limit)
+    print(user.role)
+    if user.role == Roles.admin:
+        result, err = service.get_all(44, page, limit)
+    else:
+        result, err = service.get_all_own(44, str(user.id), page, limit)
 
     if err:
         status_code, detail = err
@@ -49,9 +53,11 @@ def get_one_report_44(
 
 @router44.post("/")
 def create_report_44(
-    service: Annotated[ReportService, Depends(ReportService)], report_in: ReportIn
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin, Roles.default]))],
+    service: Annotated[ReportService, Depends(ReportService)],
+    report_in: ReportIn,
 ) -> ReportOut:
-    result, err = service.create(44, report_in)
+    result, err = service.create(str(user.id), 44, report_in)
 
     if err:
         status_code, detail = err
@@ -100,11 +106,15 @@ def delete_report_44(
 @router223.get("/")
 def list_reports_223(
     service: Annotated[ReportService, Depends(ReportService)],
-    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin]))],
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin, Roles.default]))],
     page: int = 1,
     limit: int = 15,
 ) -> PaginatedResponse[ReportOut]:
-    result, err = service.get(44, page, limit)
+    print(user.role)
+    if user.role == Roles.admin:
+        result, err = service.get_all(223, page, limit)
+    else:
+        result, err = service.get_all_own(223, str(user.id), page, limit)
 
     if err:
         status_code, detail = err
@@ -121,7 +131,7 @@ def get_one_report_223(
     user: Annotated[bool, Depends(UserWithRole([Roles.admin]))],
     report_id: str,
 ) -> ReportOut:
-    result, err = service.get_one(44, report_id)
+    result, err = service.get_one(223, report_id)
 
     if err:
         status_code, detail = err
@@ -134,9 +144,12 @@ def get_one_report_223(
 
 @router223.post("/")
 def create_report_223(
-    service: Annotated[ReportService, Depends(ReportService)], report_in: ReportIn
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin, Roles.default]))],
+    service: Annotated[ReportService, Depends(ReportService)],
+    report_in: ReportIn,
 ) -> ReportOut:
-    result, err = service.create(44, report_in)
+    print(report_in.model_dump(by_alias=True))
+    result, err = service.create(str(user.id), 223, report_in)
 
     if err:
         status_code, detail = err

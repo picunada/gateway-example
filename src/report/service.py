@@ -9,11 +9,29 @@ from src.report.schemas import ReportOut, ReportIn
 
 class ReportService:
     @staticmethod
-    def get(
+    def get_all(
         law: int, page: int = 1, limit: int = 15
     ) -> Tuple[Optional[PaginatedResponse[ReportOut]], Optional[Tuple[int, dict]]]:
         response = requests.get(
             f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/?page={page}&limit{limit}"
+        )
+
+        if response.status_code == 200:
+            result = PaginatedResponse[ReportOut].model_validate(response.json())
+        else:
+            return None, (response.status_code, response.json())
+
+        return result, None
+
+    @staticmethod
+    def get_all_own(
+        law: int,
+        user_id: str,
+        page: int = 1,
+        limit: int = 15,
+    ) -> Tuple[Optional[PaginatedResponse[ReportOut]], Optional[Tuple[int, dict]]]:
+        response = requests.get(
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/?user_id={str(user_id)}&page={page}&limit{limit}"
         )
 
         if response.status_code == 200:
@@ -40,10 +58,11 @@ class ReportService:
 
     @staticmethod
     def create(
-        law: int, report: ReportIn
+        user_id: str, law: int, report: ReportIn
     ) -> Tuple[Optional[ReportOut], Optional[Tuple[int, dict]]]:
         response = requests.post(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/", json=report.model_dump()
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/",
+            json={**report.model_dump(by_alias=True), "user_id": str(user_id)},
         )
 
         if response.status_code == 201:
