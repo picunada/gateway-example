@@ -1,9 +1,9 @@
 """Database module"""
 import os
-from dotenv import load_dotenv
-from typing import Mapping, Any
+from typing import Any, Mapping
 
 import pymongo
+from dotenv import load_dotenv
 from pymongo import MongoClient
 
 load_dotenv()
@@ -26,6 +26,8 @@ settings: Mapping[str, Mapping[str, Any]] = {
     "test": {"host": os.getenv("TEST_DATABASE_URL")},
     "local": {"host": os.getenv("TEST_DATABASE_URL")},
 }
+
+load_dotenv()
 
 
 class MongoDatabase:
