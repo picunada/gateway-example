@@ -121,7 +121,10 @@ class TestUser:
         )
 
         assert get_one_invalid_id.status_code == 404
-        assert get_one_invalid_id.json()['detail'] == "Invalid ID should be 12-byte hex string"
+        assert (
+            get_one_invalid_id.json()["detail"]
+            == "Invalid ID should be 12-byte hex string"
+        )
 
         not_found = client.get(
             "/api/v1/user/737f2466c578e69ac37c0fd5",
@@ -135,7 +138,9 @@ class TestUser:
         assert not_found.json() == {"detail": "User not found"}
 
     def test_user_me(self, client, user):
-        users = db.client.get_database("mt-services")[f"users:{os.getenv('UVICORN_ENV')}"]
+        users = db.client.get_database("mt-services")[
+            f"users:{os.getenv('UVICORN_ENV')}"
+        ]
         user_data = users.find_one({"email": "test@example.com"})
         user_data = UserOut.model_validate(user_data)
 

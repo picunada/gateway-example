@@ -37,11 +37,10 @@ class GenerateService:
 
     @staticmethod
     def stop_schedule(
-        subcription_id: str,
-        user_id: str,
+        key: str,
     ) -> Tuple[Optional[Dict[str, Any]], Optional[Tuple[int, dict]]]:
         response = requests.post(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/generate/stop/{subcription_id}/?user_id={user_id}"
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/generate/stop?key={key}"
         )
 
         if response.status_code == 200:

@@ -4,4 +4,5 @@ omit = src/report/*
        src/field_set/*
        src/query_set/*
        src/generate/*
+       src/generate/*
        src/subscription/*

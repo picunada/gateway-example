@@ -1,19 +1,10 @@
-import json
-import os
 from typing import Annotated
 
-from dotenv import load_dotenv
-from fastapi import APIRouter, Body, Depends, HTTPException, WebSocket
-from pydantic_core._pydantic_core import ValidationError
+from fastapi import APIRouter, Body, Depends, HTTPException
 
-from src.auth.dependencies import UserWithRole, WsUserWithRole
 from src.auth.service import Auth
 from src.generate.schemas import GenerateSettings, Schedule, User
 from src.generate.service import GenerateService
-from src.rabbit_mq import get_rabbit_mq_client
-from src.user.schemas import Roles, UserInDb
-
-load_dotenv()
 
 router = APIRouter()
 
@@ -26,10 +17,8 @@ def generate_one(
     report_settings: Annotated[GenerateSettings, Body(embed=True)],
     service: Annotated[GenerateService, Depends(GenerateService)],
 ):
-    v_user = User.model_validate(user)
-
     settings = {
-        "user": v_user.model_dump(),
+        "user": user.model_dump(),
         "report_settings": report_settings.model_dump(),
     }
     result, err = service.generate_one(settings)
@@ -134,13 +123,12 @@ def generate_schedule(
     return result
 
 
-@router.post("/stop/{subcription_id}")
+@router.post("/stop")
 def stop(
-    subcription_id: str,
-    user: Annotated[UserInDb, Depends(UserWithRole([Roles.default, Roles.admin]))],
+    key: str,
     service: Annotated[GenerateService, Depends(GenerateService)],
 ):
-    result, err = service.stop_schedule(subcription_id, user.id.__str__())
+    result, err = service.stop_schedule(key)
 
     if err:
         status_code, detail = err

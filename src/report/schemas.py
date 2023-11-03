@@ -1,4 +1,5 @@
 from typing import Dict
+from typing import Dict
 
 from pydantic import BaseModel, Field
 
@@ -7,17 +8,20 @@ from src.schemas import PyObjectId
 
 class ReportField(BaseModel):
     name: str
-    field_set: str
-    field_name: str
+    field_set: str = Field(alias="fieldSet", serialization_alias="fieldSet")
+    field_name: str = Field(alias="fieldName", serialization_alias="fieldName")
     func: str
     type: str
+    query: str
     query: str
 
 
 class ReportIn(BaseModel):
     name: str
     description: str
-    report_params: Dict[str, str]
+    report_params: Dict[str, str] = Field(
+        alias="reportParams", serialization_alias="reportParams"
+    )
     queries: Dict[str, Dict[str, str | Dict[str, str]]]
     fields: Dict[str, ReportField]
 
@@ -132,7 +136,7 @@ class ReportOut(BaseModel):
     id: PyObjectId = Field(alias="_id")
     name: str
     description: str
-    report_params: Dict[str, str]
+    report_params: Dict[str, str] = Field(alias="reportParams")
     queries: Dict[str, Dict[str, str | Dict[str, str]]]
     fields: Dict[str, ReportField]
 
