@@ -2,9 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 
+from src.auth.dependencies import UserWithRole
 from src.auth.service import Auth
 from src.generate.schemas import GenerateSettings, Schedule, User
 from src.generate.service import GenerateService
+from src.user.schemas import UserInDb, Roles
 
 router = APIRouter()
 
@@ -123,12 +125,13 @@ def generate_schedule(
     return result
 
 
-@router.post("/stop")
+@router.post("/stop/{subcription_id}")
 def stop(
-    key: str,
+    subcription_id: str,
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.default, Roles.admin]))],
     service: Annotated[GenerateService, Depends(GenerateService)],
 ):
-    result, err = service.stop_schedule(key)
+    result, err = service.stop_schedule(subcription_id, user.id.__str__())
 
     if err:
         status_code, detail = err
