@@ -1,5 +1,6 @@
 import os
-from typing import Optional, Tuple, Mapping
+from typing import Optional, Tuple
+from fastapi import Response, status
 
 import requests
 
@@ -90,15 +91,13 @@ class ReportService:
 
     @staticmethod
     def delete(
-        law: int, report_id: str
-    ) -> Tuple[Optional[Mapping[str, str]], Optional[Tuple[int, dict]]]:
+        law: int, report_id: str, user_id: str
+    ) -> Tuple[Optional[Response], Optional[tuple[int, dict]]]:
         response = requests.delete(
-            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}",
+            f"{os.getenv('REPORT_SVC_ADDRESS')}/report/{law}/{report_id}?user_id={str(user_id)}",
         )
 
         if response.status_code == 204:
-            result = response.json()
+            return Response(status_code=status.HTTP_204_NO_CONTENT), None
         else:
             return None, (response.status_code, response.json())
-
-        return result, None

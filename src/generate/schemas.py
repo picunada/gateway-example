@@ -19,4 +19,5 @@ class Schedule(BaseModel):
 
 class GenerateSettings(BaseModel):
     report_id: str
+    timedelta: int = Field(default=1, alias="timedelta")
     params: Dict[str, Any]

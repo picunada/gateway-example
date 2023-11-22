@@ -1,7 +1,8 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src import auth, field_set, generate, query_set, report, user
+from src import (auth, field_set, generate, query_set, report, subscription,
+                 user)
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -45,7 +46,12 @@ router.include_router(
     query_set.router223, prefix="/query_set/223", tags=["QuerySet 223"]
 )
 router.include_router(generate.router, prefix="/generate", tags=["Generate"])
+router.include_router(
+    subscription.router44, prefix="/subscription/44", tags=["Subscription 44"]
+)
+router.include_router(
+    subscription.router223, prefix="/subscription/223", tags=["Subscription 223"]
+)
 
-app.include_router(router, prefix="/api/v1")
 app.include_router(router, prefix="/api/v1")
 app.include_router(router, prefix="/api/v1")
