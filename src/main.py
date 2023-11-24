@@ -10,6 +10,9 @@ origins = [
     "http://localhost:3000",
     "http://localhost:5173",
     "http://localhost:8080",
+    "https://dev.multitender.ru",
+    "https://multitender.ru",
+    "http://localhost:5314",
 ]
 
 app = FastAPI(title="Multitender gateway")

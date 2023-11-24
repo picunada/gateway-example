@@ -108,6 +108,7 @@ cache:
     NAME: $UVICORN_ENV.$CI_PROJECT_NAME.multitender.ru.d
     MONGO_URL: $MONGO_URL
     SECRET_KEY: $SECRET_KEY
+    REPORT_SVC_ADDRESS: $REPORT_SVC_ADDRESS
   script:
     - docker login registry.gitlab.com -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker pull $DOCKERIMAGE
@@ -117,6 +118,7 @@ cache:
     - echo MONGO_URL=$MONGO_URL >> .env
     - echo UVICORN_ENV=${UVICORN_ENV} >> .env
     - echo SECRET_KEY=$SECRET_KEY >> .env
+    - echo SECRET_KEY=$REPORT_SVC_ADDRESS >> .env
     - cat .env
     - docker run -d 
       --restart=always 
