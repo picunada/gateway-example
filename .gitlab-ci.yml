@@ -118,7 +118,7 @@ cache:
     - echo MONGO_URL=$MONGO_URL >> .env
     - echo UVICORN_ENV=${UVICORN_ENV} >> .env
     - echo SECRET_KEY=$SECRET_KEY >> .env
-    - echo SECRET_KEY=$REPORT_SVC_ADDRESS >> .env
+    - echo REPORT_SVC_ADDRESS=$REPORT_SVC_ADDRESS >> .env
     - cat .env
     - docker run -d 
       --restart=always 
