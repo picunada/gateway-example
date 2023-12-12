@@ -34,7 +34,7 @@ class WsUserWithRole:
 
     def __call__(
         self,
-        user: Annotated[UserInDb, Security(auth.get_current_user, scopes=[])],
+        user: Annotated[UserInDb, Security(auth.get_current_ws_user, scopes=[])],
     ) -> UserInDb:
         if not self.roles:
             return user
