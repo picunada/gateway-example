@@ -50,7 +50,7 @@ async def generate_one_ws(
     while True:
         data = json.loads(await websocket.receive_text())
 
-        v_user = User.model_validate(user)
+        v_user = User.model_validate(user.model_dump())
 
         report_settings = GenerateSettings.model_validate(data)
 
