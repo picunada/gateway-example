@@ -1,9 +1,10 @@
+import json
 import os
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, WebSocket
 
-from src.auth.dependencies import UserWithRole
+from src.auth.dependencies import UserWithRole, WsUserWithRole
 from src.auth.service import Auth
 from src.generate.schemas import User, GenerateSettings, Schedule
 from src.generate.service import GenerateService
@@ -41,46 +42,52 @@ def generate_one(
 @router.websocket("/one/ws")
 async def generate_one_ws(
     websocket: WebSocket,
-    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin, Roles.default]))],
-    report_settings: Annotated[GenerateSettings, Body(embed=True)],
+    user: Annotated[UserInDb, Depends(WsUserWithRole([Roles.admin, Roles.default]))],
     service: Annotated[GenerateService, Depends(GenerateService)],
 ):
     await websocket.accept()
 
-    v_user = User.model_validate(user)
+    while True:
+        data = json.loads(await websocket.receive_text())
 
-    settings = {
-        "user": v_user.model_dump(),
-        "report_settings": report_settings.model_dump(),
-    }
+        v_user = User.model_validate(user)
 
-    result, err = service.generate_one(settings)
+        report_settings = GenerateSettings.model_validate(data)
 
-    rabbit = await get_rabbit_mq_client()
+        settings = {
+            "user": v_user.model_dump(),
+            "report_settings": report_settings.model_dump(),
+        }
 
-    if err:
-        status_code, detail = err
-        raise HTTPException(status_code, detail)
+        await websocket.send_json(settings)
 
-    assert result is not None
+        result, err = service.generate_one(settings)
 
-    async with rabbit:
-        channel = await rabbit.channel()
+        rabbit = await get_rabbit_mq_client()
 
-        # Declaring queue
-        queue = await channel.declare_queue(
-            os.getenv("RABBIT_MQ_QUEUE") + f"{user.username}", auto_delete=True
-        )
+        if err:
+            status_code, detail = err
+            raise HTTPException(status_code, detail)
 
-        async with queue.iterator() as queue_iter:
-            async for message in queue_iter:
-                async with message.process():
-                    print(message.body.decode())
+        assert result is not None
 
-                    await websocket.send_json(message.body.decode())
-                    await websocket.close()
+        async with rabbit:
+            channel = await rabbit.channel()
 
-                    break
+            # Declaring queue
+            queue = await channel.declare_queue(
+                os.getenv("RABBIT_MQ_QUEUE") + f"{user.username}", auto_delete=True
+            )
+
+            async with queue.iterator() as queue_iter:
+                async for message in queue_iter:
+                    async with message.process():
+                        print(message.body.decode())
+
+                        await websocket.send_json(message.body.decode())
+                        await websocket.close()
+
+                        break
 
 
 @router.post("/schedule")

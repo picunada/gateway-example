@@ -1,6 +1,6 @@
 import os
 from typing import Annotated, Optional
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, WebSocketException, Depends
 from fastapi.security import (
     OAuth2PasswordBearer,
     SecurityScopes,
@@ -61,6 +61,46 @@ class Auth:
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": authenticate_value},
         )
+        try:
+            payload = JWT.decode(token)
+            email = payload.get("sub")
+            if email is None:
+                raise credentials_exception
+            token_scopes = payload.get("scopes", [])
+            token_data = TokenData(scopes=token_scopes, email=email)
+        except (JWTError, ValidationError):
+            raise credentials_exception
+        user = self.get_user(db, email=token_data.email)
+        for scope in security_scopes.scopes:
+            if scope not in token_data.scopes:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Not enough permissions",
+                    headers={"WWW-Authenticate": authenticate_value},
+                )
+        return user
+
+    async def get_current_ws_user(
+        self,
+        security_scopes: SecurityScopes,
+        token: str,
+        db: Optional[MongoDatabase] = Depends(get_database),
+    ) -> UserInDb:
+        assert db is not None
+        if Blacklist.is_blacklisted(db, token):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Blacklisted"
+            )
+
+        if security_scopes.scopes:
+            authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+        else:
+            authenticate_value = "Bearer"
+        credentials_exception = WebSocketException(
+            code=status.WS_1008_POLICY_VIOLATION,
+            reason="Could not validate credentials",
+        )
+
         try:
             payload = JWT.decode(token)
             email = payload.get("sub")
