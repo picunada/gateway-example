@@ -1,11 +1,13 @@
+import os
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, WebSocket
 
 from src.auth.dependencies import UserWithRole
 from src.auth.service import Auth
 from src.generate.schemas import User, GenerateSettings, Schedule
 from src.generate.service import GenerateService
+from src.rabbit_mq import get_rabbit_mq_client
 from src.user.schemas import UserInDb, Roles
 
 router = APIRouter()
@@ -19,8 +21,10 @@ def generate_one(
     report_settings: Annotated[GenerateSettings, Body(embed=True)],
     service: Annotated[GenerateService, Depends(GenerateService)],
 ):
+    v_user = User.model_validate(user)
+
     settings = {
-        "user": user.model_dump(),
+        "user": v_user.model_dump(),
         "report_settings": report_settings.model_dump(),
     }
     result, err = service.generate_one(settings)
@@ -32,6 +36,50 @@ def generate_one(
     assert result is not None
 
     return result
+
+
+@router.websocket("/one/ws")
+async def generate_one_ws(
+    websocket: WebSocket,
+    user: Annotated[UserInDb, Depends(UserWithRole([Roles.admin, Roles.default]))],
+    report_settings: Annotated[GenerateSettings, Body(embed=True)],
+    service: Annotated[GenerateService, Depends(GenerateService)],
+):
+    await websocket.accept()
+
+    v_user = User.model_validate(user)
+
+    settings = {
+        "user": v_user.model_dump(),
+        "report_settings": report_settings.model_dump(),
+    }
+
+    result, err = service.generate_one(settings)
+
+    rabbit = await get_rabbit_mq_client()
+
+    if err:
+        status_code, detail = err
+        raise HTTPException(status_code, detail)
+
+    assert result is not None
+
+    async with rabbit:
+        channel = await rabbit.channel()
+
+        # Declaring queue
+        queue = await channel.declare_queue(
+            os.getenv("RABBIT_MQ_QUEUE") + f"{user.username}", auto_delete=True
+        )
+
+        async with queue.iterator() as queue_iter:
+            async for message in queue_iter:
+                async with message.process():
+                    print(message.body.decode())
+
+                    await websocket.send_json(message.body.decode())
+
+                    break
 
 
 @router.post("/schedule")

@@ -37,7 +37,7 @@ def list_reports_44(
 @router44.get("/{report_id}")
 def get_one_report_44(
     service: Annotated[ReportService, Depends(ReportService)],
-    user: Annotated[bool, Depends(UserWithRole([Roles.admin]))],
+    user: Annotated[bool, Depends(UserWithRole([Roles.admin, Roles.default]))],
     report_id: str,
 ) -> ReportOut:
     result, err = service.get_one(44, report_id)
