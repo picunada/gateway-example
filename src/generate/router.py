@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Annotated
+from dotenv import load_dotenv
 
 from fastapi import APIRouter, Body, Depends, HTTPException, WebSocket
 
@@ -10,6 +11,8 @@ from src.generate.schemas import User, GenerateSettings, Schedule
 from src.generate.service import GenerateService
 from src.rabbit_mq import get_rabbit_mq_client
 from src.user.schemas import UserInDb, Roles
+
+load_dotenv()
 
 router = APIRouter()
 

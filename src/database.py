@@ -6,6 +6,8 @@ from typing import Mapping, Any
 import pymongo
 from pymongo import MongoClient
 
+load_dotenv()
+
 settings: Mapping[str, Mapping[str, Any]] = {
     "prod": {
         "host": os.getenv("MONGO_URL"),
@@ -25,8 +27,6 @@ settings: Mapping[str, Mapping[str, Any]] = {
     "local": {"host": os.getenv("TEST_DATABASE_URL")},
 }
 
-load_dotenv()
-
 
 class MongoDatabase:
     """Database class for mongodb"""
@@ -42,6 +42,7 @@ class MongoDatabase:
         env = os.getenv("UVICORN_ENV")
         assert env is not None
         config = settings.get(env)
+        print(config)
         assert config is not None
 
         """Init database client"""
