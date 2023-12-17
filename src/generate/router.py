@@ -50,6 +50,8 @@ async def generate_one_ws(
 ):
     await websocket.accept()
 
+    rabbit = await get_rabbit_mq_client()
+
     while True:
         data = json.loads(await websocket.receive_text())
 
@@ -66,8 +68,6 @@ async def generate_one_ws(
 
         result, err = service.generate_one(settings)
 
-        rabbit = await get_rabbit_mq_client()
-
         if err:
             status_code, detail = err
             raise HTTPException(status_code, detail)
@@ -79,7 +79,7 @@ async def generate_one_ws(
 
             # Declaring queue
             queue = await channel.declare_queue(
-                os.getenv("RABBIT_MQ_QUEUE") + f"{user.username}", auto_delete=True
+                os.getenv("RABBIT_MQ_QUEUE") + f"-{user.username}", auto_delete=True
             )
 
             async with queue.iterator() as queue_iter:
