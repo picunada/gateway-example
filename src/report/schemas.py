@@ -1,5 +1,4 @@
-from typing import Dict
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -13,7 +12,7 @@ class ReportField(BaseModel):
     func: str
     type: str
     query: str
-    query: str
+    required: Optional[bool] = Field(default=False)
 
 
 class ReportIn(BaseModel):

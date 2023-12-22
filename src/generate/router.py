@@ -77,9 +77,11 @@ async def generate_one_ws(
         async with rabbit:
             channel = await rabbit.channel()
 
+            queue_name = os.getenv("RABBIT_MQ_QUEUE")
+            assert queue_name is not None
             # Declaring queue
             queue = await channel.declare_queue(
-                os.getenv("RABBIT_MQ_QUEUE") + f"-{user.username}", auto_delete=True
+                queue_name + f"-{user.username}", auto_delete=True
             )
 
             async with queue.iterator() as queue_iter:
