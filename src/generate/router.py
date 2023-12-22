@@ -4,6 +4,7 @@ from typing import Annotated
 from dotenv import load_dotenv
 
 from fastapi import APIRouter, Body, Depends, HTTPException, WebSocket
+from pydantic_core._pydantic_core import ValidationError
 
 from src.auth.dependencies import UserWithRole, WsUserWithRole
 from src.auth.service import Auth
@@ -55,44 +56,48 @@ async def generate_one_ws(
     while True:
         data = json.loads(await websocket.receive_text())
 
-        v_user = User.model_validate(user.model_dump())
+        try:
+            v_user = User.model_validate(user.model_dump())
 
-        report_settings = GenerateSettings.model_validate(data)
+            report_settings = GenerateSettings.model_validate(data)
 
-        settings = {
-            "user": v_user.model_dump(),
-            "report_settings": report_settings.model_dump(),
-        }
+            settings = {
+                "user": v_user.model_dump(),
+                "report_settings": report_settings.model_dump(),
+            }
 
-        await websocket.send_json(settings)
+            await websocket.send_json(settings)
 
-        result, err = service.generate_one(settings)
+            result, err = service.generate_one(settings)
 
-        if err:
-            status_code, detail = err
-            raise HTTPException(status_code, detail)
+            if err:
+                status_code, detail = err
+                raise HTTPException(status_code, detail)
 
-        assert result is not None
+            assert result is not None
 
-        async with rabbit:
-            channel = await rabbit.channel()
+            async with rabbit:
+                channel = await rabbit.channel()
 
-            queue_name = os.getenv("RABBIT_MQ_QUEUE")
-            assert queue_name is not None
-            # Declaring queue
-            queue = await channel.declare_queue(
-                queue_name + f"-{user.username}", auto_delete=True
-            )
+                queue_name = os.getenv("RABBIT_MQ_QUEUE")
+                assert queue_name is not None
+                # Declaring queue
+                queue = await channel.declare_queue(
+                    queue_name + f"-{user.username}", auto_delete=True
+                )
 
-            async with queue.iterator() as queue_iter:
-                async for message in queue_iter:
-                    async with message.process():
-                        print(message.body.decode())
+                async with queue.iterator() as queue_iter:
+                    async for message in queue_iter:
+                        async with message.process():
+                            print(message.body.decode())
 
-                        await websocket.send_json(message.body.decode())
-                        await websocket.close()
+                            await websocket.send_json(message.body.decode())
+                            await websocket.close()
 
-                        break
+                            break
+
+        except ValidationError as err:
+            await websocket.send_json(err.json())
 
 
 @router.post("/schedule")
