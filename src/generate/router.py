@@ -6,7 +6,7 @@ from src.auth.dependencies import UserWithRole
 from src.auth.service import Auth
 from src.generate.schemas import GenerateSettings, Schedule, User
 from src.generate.service import GenerateService
-from src.user.schemas import UserInDb, Roles
+from src.user.schemas import Roles, UserInDb
 
 router = APIRouter()
 
