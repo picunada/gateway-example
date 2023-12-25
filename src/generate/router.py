@@ -56,6 +56,9 @@ async def generate_one_ws(
     while True:
         data = json.loads(await websocket.receive_text())
 
+        if data["message"] and data["message"] == "ping":
+            await websocket.send_json({"message": "pong"})
+
         try:
             v_user = User.model_validate(user.model_dump())
 
