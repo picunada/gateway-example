@@ -53,8 +53,8 @@ async def generate_one_ws(
 
     rabbit = await get_rabbit_mq_client()
 
-    while True:
-        data = json.loads(await websocket.receive_text())
+    async for message in websocket.iter_text():
+        data = json.loads(message)
         try:
             if data["message"] and data["message"] == "ping":
                 await websocket.send_json({"message": "pong"})
