@@ -53,7 +53,7 @@ async def generate_one_ws(
 
     rabbit = await get_rabbit_mq_client()
 
-    async for message in websocket.iter_text():
+    async for message in websocket.iter_json():
         data = json.loads(message)
         try:
             if data["message"] and data["message"] == "ping":
@@ -99,8 +99,6 @@ async def generate_one_ws(
 
                             await websocket.send_json(message.body.decode())
                             await websocket.close()
-
-                            break
 
         except ValidationError as err:
             await websocket.send_json(err.json())
