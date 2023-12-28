@@ -54,9 +54,8 @@ async def generate_one_ws(
     rabbit = await get_rabbit_mq_client()
 
     async for message in websocket.iter_json():
-        data = json.loads(message)
         try:
-            if data["message"] and data["message"] == "ping":
+            if message["message"] and message["message"] == "ping":
                 await websocket.send_json({"message": "pong"})
                 continue
         except KeyError:
@@ -65,7 +64,7 @@ async def generate_one_ws(
         try:
             v_user = User.model_validate(user.model_dump())
 
-            report_settings = GenerateSettings.model_validate(data)
+            report_settings = GenerateSettings.model_validate(message)
 
             settings = {
                 "user": v_user.model_dump(),
