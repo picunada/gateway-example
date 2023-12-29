@@ -95,10 +95,12 @@ async def generate_one_ws(
                             print(message.body.decode())
 
                             await websocket.send_json(message.body.decode())
-                            await websocket.close()
+                            break
 
         except ValidationError as err:
             await websocket.send_json(err.json())
+
+        await websocket.close()
 
 
 @router.post("/schedule")
