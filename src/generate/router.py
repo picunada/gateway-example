@@ -71,8 +71,6 @@ async def generate_one_ws(
                 "report_settings": report_settings.model_dump(),
             }
 
-            await websocket.send_json(settings)
-
             result, err = service.generate_one(settings)
 
             if err:
