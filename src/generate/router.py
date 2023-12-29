@@ -49,14 +49,15 @@ async def generate_one_ws(
     user: Annotated[UserInDb, Depends(WsUserWithRole([Roles.admin, Roles.default]))],
     service: Annotated[GenerateService, Depends(GenerateService)],
 ):
+    rabbit = await get_rabbit_mq_client()
     await websocket.accept()
 
-    rabbit = await get_rabbit_mq_client()
-
-    async for message in websocket.iter_json():
+    while True:
+        message = await websocket.receive_json()
         try:
             if message["message"] and message["message"] == "ping":
                 await websocket.send_json({"message": "pong"})
+                continue
         except KeyError:
             print("received not ping pong message")
 
