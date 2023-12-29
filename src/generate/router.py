@@ -57,7 +57,6 @@ async def generate_one_ws(
         try:
             if message["message"] and message["message"] == "ping":
                 await websocket.send_json({"message": "pong"})
-                continue
         except KeyError:
             print("received not ping pong message")
 
