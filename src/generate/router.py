@@ -97,9 +97,14 @@ async def generate_one_ws(
                             await websocket.send_json(message.body.decode())
                             break
 
+            print('exit ws')
+
         except ValidationError as err:
             await websocket.send_json(err.json())
 
+        print('exit ws2')
+
+    print('closing ws')
     await websocket.close()
 
 
