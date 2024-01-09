@@ -73,6 +73,8 @@ async def generate_one_ws(
 
             result, err = service.generate_one(settings)
 
+            print(result)
+
             if err:
                 status_code, detail = err
                 raise HTTPException(status_code, detail)
@@ -88,6 +90,8 @@ async def generate_one_ws(
                 queue = await channel.declare_queue(
                     queue_name + f"-{user.username}", auto_delete=True
                 )
+
+                print(queue_name)
 
                 async with queue.iterator() as queue_iter:
                     async for message in queue_iter:
