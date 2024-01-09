@@ -17,6 +17,7 @@ types-passlib = "*"
 types-requests = "*"
 websockets = "*"
 aio-pika = "*"
+debugpy = "*"
 
 [dev-packages]
 
