@@ -8,6 +8,10 @@ from src import (auth, field_set, generate, query_set, report, subscription,
 
 debugpy.listen(("0.0.0.0", 81))
 
+import debugpy
+
+debugpy.listen(("0.0.0.0", 80))
+
 origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",
