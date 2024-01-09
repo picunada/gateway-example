@@ -7,7 +7,7 @@ from src import (auth, field_set, generate, query_set, report, subscription,
 
 import debugpy
 
-debugpy.listen(("0.0.0.0", 80))
+debugpy.listen(("0.0.0.0", 81))
 
 origins = [
     "http://localhost.tiangolo.com",
