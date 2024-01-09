@@ -93,8 +93,6 @@ async def generate_one_ws(
 
                 print(queue_name)
 
-                queue.consume()
-
                 async with queue.iterator() as queue_iter:
                     async for message in queue_iter:
                         print(message.body.decode())
