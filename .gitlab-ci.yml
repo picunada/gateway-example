@@ -137,6 +137,7 @@ cache:
       --net=mynet 
       --name $NAME 
       --env-file .env
+      -p 81:81
       $DOCKERIMAGE
     - docker logout registry.gitlab.com
   rules:
