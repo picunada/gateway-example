@@ -1,17 +1,17 @@
 import json
 import os
 from typing import Annotated
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Body, Depends, HTTPException, WebSocket
 from pydantic_core._pydantic_core import ValidationError
 
 from src.auth.dependencies import UserWithRole, WsUserWithRole
 from src.auth.service import Auth
-from src.generate.schemas import User, GenerateSettings, Schedule
+from src.generate.schemas import GenerateSettings, Schedule, User
 from src.generate.service import GenerateService
 from src.rabbit_mq import get_rabbit_mq_client
-from src.user.schemas import UserInDb, Roles
+from src.user.schemas import Roles, UserInDb
 
 load_dotenv()
 
@@ -94,10 +94,10 @@ async def generate_one_ws(
                 print(queue_name)
 
                 async with queue.iterator() as queue_iter:
-                    async for message in queue_iter:
-                        print(message.body.decode())
+                    async for rmessage in queue_iter:
+                        print(rmessage.body.decode())
 
-                        await websocket.send_json(message.body.decode())
+                        await websocket.send_json(rmessage.body.decode())
                         break
 
             print("exit ws")
