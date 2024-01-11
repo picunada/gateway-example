@@ -99,7 +99,7 @@ async def generate_one_ws(
 
                 tag = await queue.consume(on_message)
 
-                queue.cancel(tag)
+                await queue.cancel(tag)
 
                 await rabbit.close()
 
