@@ -93,11 +93,10 @@ async def generate_one_ws(
 
                 print(queue_name)
 
-                async for rmessage in queue:
-                    print(rmessage.body.decode())
-
-                    await websocket.send_json(rmessage.body.decode())
-                    break
+                async with queue.iterator() as iter:
+                    async for message in iter:
+                        await websocket.send_json(message.body.decode())
+                        break
 
             print("exit ws")
 
