@@ -93,11 +93,18 @@ async def generate_one_ws(
 
                 print(queue_name)
 
-                async with queue.iterator() as iter:
-                    async for message in iter:
-                        async with message.process():
-                            await websocket.send_json(message.body.decode())
-                            break
+                async def on_message(message):
+                    async with message.process():
+                        await websocket.send_json(message.body.decode())
+                        break
+
+                tag = await queue.consume(on_message)
+
+                queue.cancel(tag)
+
+                await rabbit.close()
+
+                await websocket.send_json({"message": "done"})        
 
             print("exit ws")
 
