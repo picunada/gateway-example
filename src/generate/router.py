@@ -95,8 +95,9 @@ async def generate_one_ws(
 
                 async with queue.iterator() as iter:
                     async for message in iter:
-                        await websocket.send_json(message.body.decode())
-                        break
+                        async with message.process():
+                            await websocket.send_json(message.body.decode())
+                            break
 
             print("exit ws")
 
