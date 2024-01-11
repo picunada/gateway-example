@@ -96,7 +96,6 @@ async def generate_one_ws(
                 async def on_message(message):
                     async with message.process():
                         await websocket.send_json(message.body.decode())
-                        break
 
                 tag = await queue.consume(on_message)
 
