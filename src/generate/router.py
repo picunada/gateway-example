@@ -88,7 +88,7 @@ async def generate_one_ws(
                 assert queue_name is not None
                 # Declaring queue
                 queue = await channel.declare_queue(
-                    queue_name + f"-{user.username}", auto_delete=True, no_ack=True
+                    queue_name + f"-{user.username}", auto_delete=True
                 )
 
                 print(queue_name)
