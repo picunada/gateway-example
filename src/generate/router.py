@@ -93,13 +93,19 @@ async def generate_one_ws(
 
                 print(queue_name)
 
+                sended = False
+
                 async def on_message(message):
                     async with message.process():
                         await websocket.send_json(message.body.decode())
+                        sended = True
 
                 tag = await queue.consume(on_message)
 
                 await queue.cancel(tag)
+
+                while sended is not True:
+                    await websocket.receive_json()
 
                 await rabbit.close()
 
