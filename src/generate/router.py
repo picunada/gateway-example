@@ -102,6 +102,8 @@ async def generate_one_ws(
 
         except ValidationError as err:
             await websocket.send_json(err.json())
+        
+        rabbit.close()
 
         print("exit ws2")
         break

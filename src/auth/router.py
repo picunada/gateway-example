@@ -1,18 +1,17 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Body, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.auth.service import Auth
-from src.database import get_database, MongoDatabase
-from src.auth.schemas import Token
 from src.auth.blacklist import Blacklist
 from src.auth.jwt import JWT
+from src.auth.schemas import Token
+from src.auth.service import Auth
+from src.database import MongoDatabase, get_database
 
 router = APIRouter()
 
 auth = Auth()
-
 
 @router.post("/access")
 def access(
