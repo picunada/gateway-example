@@ -28,7 +28,6 @@ cache:
     - .cache/pip
     - .venv/
 
-
 "Lint application":
   <<: *non-release
   stage: lint
@@ -37,7 +36,7 @@ cache:
     - make lint
     - make format
   rules:
-    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'"  # Run for all changes to a merge request's source branch
+    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'" # Run for all changes to a merge request's source branch
 
 "Type checking":
   <<: *non-release
@@ -46,7 +45,6 @@ cache:
     - make mypy
   rules:
     - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'" # Run for all changes to a merge request's source branch
-
 
 "Test coverage":
   <<: *non-release
@@ -61,8 +59,7 @@ cache:
   services:
     - mongo:latest
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # Run for all changes to a merge request's source branch
-
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"' # Run for all changes to a merge request's source branch
 
 "Build Container":
   stage: packaging
@@ -86,7 +83,6 @@ cache:
       when: always
     - when: never
 
-
 "Package Release":
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
@@ -102,7 +98,7 @@ cache:
 
 .deploy-job:
   tags:
-    - shell
+    - services
   variables:
     DOCKERIMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
     NAME: $UVICORN_ENV.$CI_PROJECT_NAME.multitender.ru.d
@@ -132,10 +128,10 @@ cache:
     - echo RABBIT_MQ_VIRTUAL_HOST=$RABBIT_MQ_VIRTUAL_HOST >> .env
     - echo REPORT_SVC_ADDRESS=$REPORT_SVC_ADDRESS >> .env
     - cat .env
-    - docker run -d 
-      --restart=always 
-      --net=mynet 
-      --name $NAME 
+    - docker run -d
+      --restart=always
+      --net=mynet
+      --name $NAME
       --env-file .env
       -p 81:81
       $DOCKERIMAGE
@@ -167,4 +163,3 @@ cache:
   rules:
     - if: $CI_COMMIT_TAG
       when: manual
-
