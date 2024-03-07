@@ -98,7 +98,7 @@ cache:
 
 .deploy-job:
   tags:
-    - services
+    - ubuntu-shell
   variables:
     DOCKERIMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
     NAME: $UVICORN_ENV.$CI_PROJECT_NAME.multitender.ru.d
