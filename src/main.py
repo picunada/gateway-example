@@ -1,11 +1,10 @@
+import debugpy
 import uvicorn
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src import (auth, field_set, generate, query_set, report, subscription,
-                 user)
-
-import debugpy
+                 templates, user)
 
 debugpy.listen(("0.0.0.0", 80))
 
