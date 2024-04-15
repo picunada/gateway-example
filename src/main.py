@@ -1,11 +1,10 @@
+import debugpy
 import uvicorn
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src import (auth, field_set, generate, query_set, report, subscription,
-                 user)
-
-import debugpy
+                 templates, user)
 
 debugpy.listen(("0.0.0.0", 81))
 
@@ -43,6 +42,8 @@ router = APIRouter()
 
 router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 router.include_router(user.router, prefix="/user", tags=["User"])
+router.include_router(templates.router44, prefix="/templates/44", tags=["Templates 44"])
+router.include_router(templates.router223, prefix="/templates/223", tags=["Templates 223"])
 router.include_router(report.router44, prefix="/report/44", tags=["Report 44"])
 router.include_router(report.router223, prefix="/report/223", tags=["Report 223"])
 router.include_router(field_set.router44, prefix="/field_set/44", tags=["FieldSet 44"])
